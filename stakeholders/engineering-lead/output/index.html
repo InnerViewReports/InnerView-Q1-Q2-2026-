@@ -1,0 +1,981 @@
+Porch template preview · HTML
+
+
+Google Chrome
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The PORCH Report</title>
+<style>
+:root {
+  --lawn:#1B8751;--plaster:#F0F2F5;--dusk:#232F46;--light-green:#ADD9B8;
+  --pine:#15664B;--blush:#EDDAD5;--terracotta:#974859;--parchment:#F5EFD7;
+  --wheat:#F6BF56;--orange-dust:#BA6029;--cloudy:#D8E6EB;--vista-blue:#85AFCC;
+  --blue-ridge:#47608E;--text-primary:#232F46;--text-muted:#2e3f55;
+  --text-faint:#4a5c72;--border:rgba(35,47,70,0.10);--border-mid:rgba(35,47,70,0.18);
+  --surface:#ffffff;--bg:#F0F2F5;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:400;font-size:14px;color:var(--text-primary);background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.5;}
+.dash{padding:0 0 5rem;max-width:980px;margin:0 auto;}
+.header-bar{height:4px;background:var(--lawn);border-radius:0 0 2px 2px;}
+.header{padding:1.5rem 2rem;border-bottom:1px solid var(--border-mid);background:var(--surface);}
+.nd-brand{display:flex;align-items:center;gap:6px;color:var(--lawn);font-size:13px;margin-bottom:10px;}
+.nd-brand svg{flex-shrink:0;}
+.header h1{font-size:22px;font-weight:400;color:var(--text-primary);letter-spacing:-0.02em;margin-bottom:8px;}
+.header-meta{display:flex;align-items:center;gap:12px;}
+.header-teams{font-size:12px;color:var(--text-faint);}
+.header-teams strong{font-weight:400;color:var(--text-muted);}
+.header-dot{color:var(--border-mid);}
+.header-ytd{font-size:12px;color:var(--text-faint);}
+.tab-area{background:var(--surface);padding:0 2rem;border-bottom:1px solid var(--border-mid);}
+.tab-bar{display:flex;gap:0;padding:0;background:none;border:none;border-radius:0;width:100%;}
+.tab-btn{font-family:inherit;font-size:13px;font-weight:400;color:var(--text-faint);background:none;border:none;border-bottom:2px solid transparent;padding:14px 16px;cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap;margin-bottom:-1px;}
+.tab-btn:hover{color:var(--text-primary);}
+.tab-btn.active{color:var(--lawn);border-bottom-color:var(--lawn);}
+.tab-panel{display:none;padding:2rem 2rem 0;}
+.tab-panel.active{display:block;}
+.section-label{font-size:12px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px;margin-top:2.5rem;font-weight:400;}
+.section-label:first-child{margin-top:0;}
+.divider{border:none;border-top:1px solid var(--border);margin:2rem 0;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+.kpi-3{grid-template-columns:repeat(3,minmax(0,1fr));}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+.kpi .label{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
+.offer-rate-row{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border);}
+.offer-rate-label{font-size:12px;color:var(--text-faint);}
+.offer-rate-val{font-size:14px;color:var(--text-primary);}
+.metric-big{font-size:28px;color:var(--text-primary);line-height:1;margin:4px 0;}
+.metric-sub{font-size:12px;color:var(--text-faint);line-height:1.45;}
+.kpi.kpi-alert{border-color:rgba(151,72,89,0.25);}
+.kpi.kpi-alert .metric-big{color:var(--terracotta);}
+.kpi.kpi-alert .label{color:var(--terracotta);opacity:.75;}
+.status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.status-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.4rem;cursor:pointer;transition:box-shadow .15s;}
+.status-card:hover{box-shadow:0 4px 16px rgba(35,47,70,0.08);}
+.status-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.status-card h3{font-size:14px;color:var(--text-primary);font-weight:400;}
+.status-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.dot-red{background:var(--terracotta);}.dot-amber{background:var(--orange-dust);}.dot-green{background:var(--lawn);}
+.status-badge{font-size:11px;letter-spacing:.03em;margin-bottom:8px;display:block;}
+.sbadge-red{color:var(--terracotta);}.sbadge-amber{color:var(--orange-dust);}.sbadge-green{color:var(--lawn);}
+.status-card p{font-size:13px;color:var(--text-muted);line-height:1.65;}
+.status-card .go{font-size:12px;color:var(--text-faint);margin-top:14px;}
+.pipeline-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+.pipeline-table thead th{font-size:12px;color:var(--text-faint);text-align:center;padding:8px 4px 12px;border-bottom:1px solid var(--border-mid);line-height:1.4;text-transform:uppercase;letter-spacing:.06em;overflow:hidden;font-weight:400;}
+.pipeline-table thead th.job-col{text-align:left;padding-left:0;width:22%;}
+.pipeline-table thead th.stage-col{width:7%;}
+.pipeline-table thead th.arrow-col{width:8%;}
+.pipeline-table thead th.sm-col{width:5%;}
+.pipeline-table tbody tr{border-bottom:1px solid var(--border);}
+.pipeline-table tbody tr:last-child{border-bottom:none;}
+.pipeline-table tbody tr.total-row td{background:rgba(27,135,81,0.05);}
+.pipeline-table td{padding:13px 4px;text-align:center;vertical-align:middle;color:var(--text-primary);overflow:hidden;}
+.pipeline-table td.job-col{text-align:left;padding-left:0;font-size:14px;padding-right:8px;}
+.pipeline-table td.job-col.total{font-size:12px;color:var(--text-faint);}
+.stage-num{font-size:15px;}.arrow-cell{font-size:12px;white-space:nowrap;}
+.arr-green{color:var(--lawn);}.arr-yellow{color:var(--orange-dust);}.arr-red{color:var(--terracotta);}.arr-neutral{color:var(--text-faint);}
+.hire-rate{font-size:12px;color:var(--text-faint);}
+.interviewer-table{width:100%;border-collapse:collapse;font-size:13px;}
+.interviewer-table th{text-align:left;font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;padding:7px 10px;border-bottom:1px solid var(--border-mid);font-weight:400;}
+.interviewer-table td{padding:10px;border-bottom:1px solid var(--border);color:var(--text-primary);vertical-align:middle;}
+.interviewer-table tr:last-child td{border-bottom:none;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;letter-spacing:.02em;font-weight:400;}
+.badge.excellent{background:rgba(27,135,81,0.12);color:var(--pine);}
+.badge.slow{background:rgba(186,96,41,0.12);color:var(--orange-dust);}
+.badge.slow-due{background:rgba(151,72,89,0.12);color:var(--terracotta);}
+.sla-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.4rem 1.6rem;}
+.sla-group{margin-bottom:1.4rem;}
+.sla-group:last-of-type{margin-bottom:0;}
+.sla-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.sla-label{font-size:13px;color:var(--text-primary);}
+.sla-pill{font-size:11px;padding:3px 10px;border-radius:20px;}
+.sla-pill-green{background:rgba(27,135,81,0.1);color:var(--pine);}
+.sla-pill-red{background:rgba(151,72,89,0.1);color:var(--terracotta);}
+.sla-track{width:100%;height:6px;background:var(--plaster);border-radius:3px;overflow:hidden;margin-bottom:8px;}
+.sla-fill-green{height:100%;border-radius:3px;background:var(--lawn);}
+.sla-fill-red{height:100%;border-radius:3px;background:var(--terracotta);}
+.sla-names{font-size:13px;color:var(--text-muted);line-height:1.7;}
+.sla-divider{border:none;border-top:1px solid var(--border);margin:1.4rem 0;}
+.sla-subhead{font-size:13px;color:var(--text-primary);margin-bottom:8px;}
+.due-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:.5rem;}
+.due-table th{text-align:left;font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em;padding:5px 8px;border-bottom:1px solid var(--border-mid);font-weight:400;}
+.due-table td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.due-table tr:last-child td{border-bottom:none;}
+.due-name{font-size:13px;color:var(--text-primary);}
+.due-chip{display:inline-block;background:rgba(151,72,89,0.1);color:var(--terracotta);font-size:13px;padding:2px 10px;border-radius:6px;}
+.completion-wrap{display:flex;align-items:center;gap:10px;}
+.completion-track{flex:1;height:6px;background:var(--plaster);border-radius:3px;overflow:hidden;min-width:80px;}
+.completion-fill-red{height:100%;border-radius:3px;background:var(--terracotta);}
+.completion-fill-amber{height:100%;border-radius:3px;background:var(--orange-dust);}
+.completion-pct{font-size:13px;color:var(--text-faint);min-width:36px;text-align:right;}
+.obs-act-card{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.obs-col{padding:1.4rem 1.6rem;background:var(--surface);border-right:1px solid var(--border);}
+.act-col{padding:1.4rem 1.6rem;background:rgba(173,217,184,0.25);}
+.obs-head{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);font-weight:400;}
+.act-head{font-size:11px;color:var(--pine);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(27,135,81,0.2);font-weight:400;}
+.obs-item{font-size:13px;color:var(--text-muted);line-height:1.65;padding-left:16px;position:relative;margin-bottom:10px;}
+.obs-item:last-child{margin-bottom:0;}
+.obs-item::before{content:'\2013';position:absolute;left:0;color:var(--text-faint);}
+.act-item{font-size:13px;color:var(--text-muted);line-height:1.65;padding-left:16px;position:relative;margin-bottom:10px;}
+.act-item:last-child{margin-bottom:0;}
+.act-item::before{content:'\2192';position:absolute;left:0;color:var(--lawn);font-size:12px;top:1px;}
+.flag-box{background:var(--surface);border:1px solid rgba(151,72,89,0.2);border-left:3px solid var(--terracotta);border-radius:10px;padding:1.1rem 1.4rem;}
+.flag-header{font-size:12px;color:var(--terracotta);letter-spacing:.03em;margin-bottom:8px;}
+.flag-body{font-size:13px;color:var(--text-muted);line-height:1.7;}
+.flag-meta{font-size:11px;color:var(--text-faint);margin-top:8px;}
+.dei-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.dei-row{display:flex;align-items:stretch;padding:16px 18px;gap:16px;border-bottom:1px solid var(--border);}
+.dei-row:last-child{border-bottom:none;}
+.dei-row-label{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em;width:88px;flex-shrink:0;padding-top:2px;line-height:1.5;font-weight:400;}
+.dei-funnel{display:flex;align-items:center;gap:4px;flex:1;}
+.dei-stage{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 12px;border-radius:8px;background:var(--plaster);min-width:80px;}
+.dei-stage.flagged{background:rgba(151,72,89,0.08);}
+.dei-stage-name{font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;text-align:center;}
+.dei-stage-pct{font-size:18px;color:var(--text-primary);line-height:1;}
+.dei-stage.flagged .dei-stage-pct{color:var(--terracotta);}
+.dei-chevron{font-size:11px;color:var(--border-mid);flex-shrink:0;}
+.dei-note-col{width:190px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;border-left:1px solid var(--border);padding-left:18px;}
+.dei-focus-tag{display:inline-block;font-size:10px;letter-spacing:.04em;padding:2px 8px;border-radius:20px;margin-bottom:7px;width:fit-content;}
+.tag-process{background:rgba(151,72,89,0.1);color:var(--terracotta);}
+.tag-sourcing{background:rgba(186,96,41,0.1);color:var(--orange-dust);}
+.dei-note-text{font-size:12px;color:var(--text-muted);line-height:1.6;}
+.bh-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.bh-card-header{padding:1rem 1.4rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+.bh-card-title{font-size:14px;color:var(--text-primary);flex-shrink:0;}
+.bh-card-desc{padding:.9rem 1.4rem;font-size:13px;color:var(--text-muted);line-height:1.7;background:var(--plaster);border-bottom:1px solid var(--border);}
+.bh-split{display:grid;grid-template-columns:1fr 1fr;}
+.bh-group{padding:1.1rem 1.4rem;}
+.bh-group:first-child{border-right:1px solid var(--border);}
+.bh-group-head{display:flex;align-items:center;gap:7px;margin-bottom:1rem;padding-bottom:.6rem;border-bottom:1px solid var(--border);}
+.bh-group-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.bh-group-label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:400;}
+.bh-group-label.green{color:var(--pine);}.bh-group-label.gap{color:var(--orange-dust);}
+.bh-row{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
+.bh-row:last-child{margin-bottom:0;}
+.bh-skill-label{font-size:13px;color:var(--text-muted);flex:0 0 170px;}
+.bh-track{flex:1;height:5px;background:var(--plaster);border-radius:3px;overflow:hidden;}
+.bh-fill-green{height:100%;border-radius:3px;background:var(--lawn);}
+.bh-fill-amber{height:100%;border-radius:3px;background:var(--orange-dust);}
+.bh-fill-red{height:100%;border-radius:3px;background:var(--terracotta);}
+.bh-pct-green{font-size:13px;color:var(--pine);flex:0 0 36px;text-align:right;}
+.bh-pct-amber{font-size:13px;color:var(--orange-dust);flex:0 0 36px;text-align:right;}
+.bh-pct-red{font-size:13px;color:var(--terracotta);flex:0 0 36px;text-align:right;}
+.bh-role-meta{padding:.5rem 1.4rem;font-size:12px;color:var(--text-faint);border-bottom:1px solid var(--border);background:var(--plaster);}
+.role-tabs{display:flex;gap:2px;background:var(--plaster);padding:3px;border-radius:8px;flex-shrink:0;}
+.role-tab{font-family:inherit;font-size:12px;font-weight:400;color:var(--text-muted);background:none;border:none;border-radius:6px;padding:5px 13px;cursor:pointer;transition:all .15s;white-space:nowrap;line-height:1.4;}
+.role-tab:hover{color:var(--text-primary);}
+.role-tab.active{background:var(--surface);color:var(--lawn);box-shadow:0 1px 3px rgba(35,47,70,0.10);}
+.role-panel{display:none;}.role-panel.active{display:block;}
+.iq-wrap{overflow-x:auto;}
+.iq-table{width:100%;border-collapse:collapse;font-size:12px;}
+.iq-table thead th{padding:10px 8px 11px;text-align:center;font-weight:400;font-size:11px;color:var(--text-faint);border-bottom:1px solid var(--border);white-space:nowrap;}
+.iq-table thead th:first-child{text-align:left;padding-left:1.4rem;min-width:155px;}
+.iq-table thead th.iq-overall-h{color:var(--text-muted);border-right:1px solid var(--border);}
+.iq-table tbody tr{border-bottom:1px solid var(--border);}
+.iq-table tbody tr:last-child{border-bottom:none;}
+.iq-table tbody td{padding:10px 8px;text-align:center;vertical-align:middle;}
+.iq-table tbody td:first-child{text-align:left;padding-left:1.4rem;font-size:13px;color:var(--text-primary);}
+.iq-table tbody td.iq-overall-c{border-right:1px solid var(--border);}
+.iq-count{display:block;font-size:11px;color:var(--text-faint);margin-top:1px;}
+.iq-score{display:inline-block;border-radius:4px;padding:2px 7px;font-size:12px;min-width:36px;text-align:center;}
+.iq-100{background:#e8f5ee;color:#1B8751;}.iq-high{background:#eef7f2;color:#2d7a53;}
+.iq-mid{background:#fef3e8;color:#BA6029;}.iq-low{background:#fceef1;color:#974859;}
+.iq-zero{background:#f0f2f5;color:#9aa3af;}
+.tip{cursor:help;}
+.tip-popup{position:absolute;background:var(--dusk);color:#fff;font-size:11px;line-height:1.6;padding:9px 12px;border-radius:7px;white-space:normal;width:240px;text-align:left;pointer-events:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.18);}
+.timestamp{font-size:11px;color:var(--text-faint);margin-top:2.5rem;padding-bottom:.5rem;}
+</style>
+</head>
+<body>
+<div class="dash">
+  <div class="header-bar"></div>
+  <div class="header">
+    <div class="nd-brand">
+      <svg width="16" height="16" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#1B8751"/><path d="M16 7C11.03 7 7 11.03 7 16s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 14a5 5 0 110-10 5 5 0 010 10z" fill="white"/></svg>
+      Nextdoor
+    </div>
+    <h1 id="report-title">The PORCH Report</h1>
+    <div class="header-meta">
+      <div class="header-teams">Roles: <strong id="header-roles"></strong></div>
+      <span class="header-dot">·</span>
+      <div class="header-ytd" id="header-range"></div>
+      <span class="header-dot">·</span>
+      <div class="header-ytd" id="header-period"></div>
+    </div>
+  </div>
+  <div class="tab-area">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+      <button class="tab-btn" onclick="switchTab('pipeline')">Pipeline</button>
+      <button class="tab-btn" onclick="switchTab('engagement')">Interviewer engagement</button>
+      <button class="tab-btn" onclick="switchTab('metrics')">Metrics</button>
+    </div>
+  </div>
+  <div class="tab-panel active" id="tab-overview"></div>
+  <div class="tab-panel" id="tab-pipeline"></div>
+  <div class="tab-panel" id="tab-engagement"></div>
+  <div class="tab-panel" id="tab-metrics"></div>
+</div>
+ 
+<script>window.PORCH_DATA = {
+  "meta": {
+    "company": "Nextdoor",
+    "stakeholder": "Engineering Recruiting Lead",
+    "period": "Q1 2026",
+    "date_range": "Jan 1 – Mar 31, 2026",
+    "generated": "April 22, 2026",
+    "source_note": "Greenhouse pipeline export · BrightHire skills assessment · BrightHire interview quality"
+  },
+  "summary": {
+    "avg_days_to_fill": 127,
+    "pass_rate_pct": 31,
+    "total_offers": 1,
+    "offer_acceptance_pct": 100
+  },
+  "roles": [
+    {
+      "id": "traffic",
+      "name": "Lead SWE — Traffic",
+      "short_name": "Traffic",
+      "hiring_manager": "Sean Chan",
+      "recruiter": "Alexis",
+      "status": "active",
+      "current_stage": "Final Round",
+      "active_candidates": 5,
+      "days_open": 120,
+      "pipeline": [
+        33,
+        11,
+        11,
+        1,
+        0,
+        0
+      ],
+      "bh_skills": {
+        "interviews": "20 interviews",
+        "description": "These are skills explicitly listed in the Traffic job description. Each bar shows the percentage of interviews where that skill was assessed.\n",
+        "covered": [
+          {
+            "skill": "People Management",
+            "pct": 100
+          },
+          {
+            "skill": "Technical Leadership",
+            "pct": 100
+          },
+          {
+            "skill": "Cross-Functional Collab",
+            "pct": 100
+          },
+          {
+            "skill": "Data-Driven Decisions",
+            "pct": 95
+          },
+          {
+            "skill": "Growth Strategy",
+            "pct": 90
+          },
+          {
+            "skill": "Full Stack Development",
+            "pct": 85
+          },
+          {
+            "skill": "Technical Judgment",
+            "pct": 80
+          }
+        ],
+        "gaps": [
+          {
+            "skill": "A/B Testing",
+            "pct": 70
+          },
+          {
+            "skill": "SEO Expertise",
+            "pct": 60
+          },
+          {
+            "skill": "User Empathy",
+            "pct": 55
+          },
+          {
+            "skill": "Django/Python",
+            "pct": 55
+          },
+          {
+            "skill": "React/Next.js",
+            "pct": 45
+          },
+          {
+            "skill": "Operational Rigor",
+            "pct": 15
+          },
+          {
+            "skill": "Observability Tools",
+            "pct": 15
+          }
+        ]
+      },
+      "bh_quality": [
+        {
+          "name": "Adler Faulkner",
+          "count": 1,
+          "overall": 100,
+          "on_time": 100,
+          "talk": 100,
+          "mono": 100,
+          "eeoc": 100,
+          "q_opp": 100,
+          "agenda": 100,
+          "fb_time": 100,
+          "fb_rate": 100
+        },
+        {
+          "name": "Sean Chan",
+          "count": 6,
+          "overall": 67,
+          "on_time": 100,
+          "talk": 67,
+          "mono": 100,
+          "eeoc": 100,
+          "q_opp": 67,
+          "agenda": 67,
+          "fb_time": 0,
+          "fb_rate": 33
+        },
+        {
+          "name": "Volodymyr Klymenko",
+          "count": 1,
+          "overall": 43,
+          "on_time": 100,
+          "talk": 0,
+          "mono": 100,
+          "eeoc": 100,
+          "q_opp": 0,
+          "agenda": 0,
+          "fb_time": null,
+          "fb_rate": 0
+        },
+        {
+          "name": "Glen Tona",
+          "count": 1,
+          "overall": 43,
+          "on_time": 100,
+          "talk": 0,
+          "mono": 100,
+          "eeoc": 100,
+          "q_opp": 0,
+          "agenda": 0,
+          "fb_time": null,
+          "fb_rate": 0
+        }
+      ]
+    },
+    {
+      "id": "adserving",
+      "name": "Lead SWE — Ad Serving",
+      "short_name": "Ad Serving",
+      "hiring_manager": "Jane Smith",
+      "recruiter": "Alexis",
+      "status": "active",
+      "current_stage": "Phone Interview",
+      "active_candidates": 3,
+      "days_open": 90,
+      "pipeline": [
+        27,
+        6,
+        6,
+        1,
+        0,
+        0
+      ],
+      "bh_skills": {
+        "interviews": "7 interviews · 5 candidates",
+        "description": "Skills from the Ad Serving job description. Each bar shows the percentage of interviews where that skill was assessed.\n",
+        "covered": [
+          {
+            "skill": "Leadership",
+            "pct": 100
+          },
+          {
+            "skill": "Technical Strategy",
+            "pct": 100
+          },
+          {
+            "skill": "Ads Technology",
+            "pct": 100
+          },
+          {
+            "skill": "Cross-Functional Collab",
+            "pct": 100
+          },
+          {
+            "skill": "Communication Skills",
+            "pct": 100
+          },
+          {
+            "skill": "Adaptability",
+            "pct": 100
+          },
+          {
+            "skill": "Project Management",
+            "pct": 100
+          },
+          {
+            "skill": "Scalability",
+            "pct": 80
+          }
+        ],
+        "gaps": [
+          {
+            "skill": "Cloud Technologies",
+            "pct": 40
+          },
+          {
+            "skill": "Compliance Knowledge",
+            "pct": 0
+          },
+          {
+            "skill": "Community Focus",
+            "pct": 0
+          }
+        ]
+      },
+      "bh_quality": [
+        {
+          "name": "Derek Chung",
+          "count": 1,
+          "overall": 100,
+          "on_time": 100,
+          "talk": 100,
+          "mono": 100,
+          "eeoc": 100,
+          "q_opp": 100,
+          "agenda": 100,
+          "fb_time": 100,
+          "fb_rate": 100
+        },
+        {
+          "name": "Latte Zimmermann",
+          "count": 2,
+          "overall": 81,
+          "on_time": 100,
+          "talk": 0,
+          "mono": 100,
+          "eeoc": 100,
+          "q_opp": 100,
+          "agenda": 50,
+          "fb_time": 100,
+          "fb_rate": 100
+        },
+        {
+          "name": "Cory Dolphin",
+          "count": 1,
+          "overall": 75,
+          "on_time": 100,
+          "talk": 100,
+          "mono": 100,
+          "eeoc": 100,
+          "q_opp": 100,
+          "agenda": 100,
+          "fb_time": 0,
+          "fb_rate": 0
+        },
+        {
+          "name": "Pallavi Agarwal",
+          "count": 2,
+          "overall": 75,
+          "on_time": 100,
+          "talk": 100,
+          "mono": 100,
+          "eeoc": 100,
+          "q_opp": 50,
+          "agenda": 0,
+          "fb_time": 50,
+          "fb_rate": 100
+        }
+      ]
+    },
+    {
+      "id": "admeasurement",
+      "name": "Lead SWE — Ad Measurement",
+      "short_name": "Ad Measurement",
+      "hiring_manager": "John Doe",
+      "recruiter": "Alexis",
+      "status": "hold",
+      "current_stage": "Recruiter Screen",
+      "active_candidates": 2,
+      "days_open": 60,
+      "pipeline": [
+        34,
+        13,
+        13,
+        1,
+        0,
+        0
+      ],
+      "bh_skills": {
+        "interviews": "4 interviews · 2 candidates",
+        "description": "Skills from the Ad Measurement job description. Each bar shows the percentage of interviews where that skill was assessed.\n",
+        "covered": [
+          {
+            "skill": "Technical Leadership",
+            "pct": 100
+          },
+          {
+            "skill": "Team Development",
+            "pct": 100
+          },
+          {
+            "skill": "Product Strategy",
+            "pct": 100
+          },
+          {
+            "skill": "Advertising Experience",
+            "pct": 100
+          },
+          {
+            "skill": "People Leadership",
+            "pct": 100
+          }
+        ],
+        "gaps": [
+          {
+            "skill": "Scalable Systems",
+            "pct": 50
+          },
+          {
+            "skill": "Data-Driven Development",
+            "pct": 50
+          },
+          {
+            "skill": "Community Focus",
+            "pct": 0
+          },
+          {
+            "skill": "Statistical Modeling",
+            "pct": 0
+          },
+          {
+            "skill": "Privacy Knowledge",
+            "pct": 0
+          }
+        ]
+      },
+      "bh_quality": [
+        {
+          "name": "Hua Zheng",
+          "count": 1,
+          "overall": 100,
+          "on_time": 100,
+          "talk": 100,
+          "mono": 100,
+          "eeoc": 100,
+          "q_opp": 100,
+          "agenda": 100,
+          "fb_time": 100,
+          "fb_rate": 100
+        },
+        {
+          "name": "Derek Chung",
+          "count": 1,
+          "overall": 100,
+          "on_time": 100,
+          "talk": 100,
+          "mono": 100,
+          "eeoc": 100,
+          "q_opp": 100,
+          "agenda": 100,
+          "fb_time": 100,
+          "fb_rate": 100
+        },
+        {
+          "name": "Rahul Indurkar",
+          "count": 1,
+          "overall": 75,
+          "on_time": 100,
+          "talk": 100,
+          "mono": 100,
+          "eeoc": 100,
+          "q_opp": 100,
+          "agenda": 0,
+          "fb_time": 0,
+          "fb_rate": 100
+        }
+      ]
+    }
+  ],
+  "pipeline": {
+    "stages": [
+      "Recruiter Screen",
+      "Code Signal",
+      "Phone Interview",
+      "Full Panel",
+      "Offer",
+      "Accept"
+    ]
+  },
+  "dei": {
+    "female": {
+      "stages": [
+        "Recruiter Screen",
+        "Phone Interview",
+        "Full Panel",
+        "Offer"
+      ],
+      "pct": [
+        35,
+        30,
+        33,
+        0
+      ],
+      "flag_index": 2,
+      "focus": "process",
+      "note": "Women are being lost at the Full Panel stage. Review how candidates are evaluated here."
+    }
+  },
+  "engagement": {
+    "sla_48hr_pct": 65,
+    "sla_ok_names": "Adler Faulkner · Xi Yeh · Glen Tona · Hua Zheng · Derek Chung\n",
+    "scorecards": [
+      {
+        "name": "Sagar Joshi",
+        "roles": "Ad Serving · Ad Measurement",
+        "total": 7,
+        "pending": 6,
+        "pct_done": 14
+      }
+    ],
+    "overdue": [
+      {
+        "name": "Jason Falk",
+        "roles": "Traffic",
+        "days_late": 12.9
+      },
+      {
+        "name": "Cory Dolphin",
+        "roles": "Ad Serving",
+        "days_late": 9.8
+      }
+    ],
+    "observations": [
+      "Sagar Joshi has 6 outstanding scorecards (14% complete). No hire decisions can move until these are submitted.",
+      "Jason Falk and Cory Dolphin are significantly past the 48-hr SLA.",
+      "Traffic: Operational Rigor and Observability Tools are assessed in only 15% of interviews."
+    ],
+    "recommendations": [
+      "Set a hard deadline with Sagar Joshi on his 6 outstanding scorecards this week.",
+      "Escalate Jason Falk and Cory Dolphin to their managers — these are not minor delays.",
+      "Update the Traffic interview guide to include Operational Rigor and Observability Tools."
+    ]
+  },
+  "metrics": {
+    "total_declines": 6,
+    "interviewers_with_declines": 2,
+    "hm_screen_decline_pct": 17,
+    "flags": [
+      {
+        "header": "Repeat decline — same candidate, same interview, same interviewer",
+        "body": "Sagar Joshi declined Vitalii Syrovatskyi's Technical Leadership panel interview twice — Feb 27 and Mar 4 — before finally facilitating it on Mar 6. The two cancellations delayed full panel completion by at least 8 days.\n",
+        "meta": "Lead SWE — Ad Serving · Full Panel stage · Feb 27 – Mar 6, 2026"
+      }
+    ],
+    "declines": [
+      {
+        "interviewer": "Sean Chan",
+        "roles": "Traffic",
+        "stage": "HM Screen",
+        "stage_type": "slow-due",
+        "count": 3,
+        "candidates": "Julia Yan · Caglayan Gemici · Gabriel Sina"
+      },
+      {
+        "interviewer": "Sagar Joshi",
+        "roles": "Ad Serving · Ad Measurement",
+        "stage": "Mixed",
+        "stage_type": "slow",
+        "count": 3,
+        "candidates": "Vitalii Syrovatskyi · Alex Kim · Jordan Lee"
+      }
+    ]
+  }
+};</script>
+ 
+<script>
+function switchTab(id){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  var tabs={overview:0,pipeline:1,engagement:2,metrics:3};
+  document.querySelectorAll('.tab-btn')[tabs[id]].classList.add('active');
+}
+ 
+function showPanel(prefix,roleId){
+  document.querySelectorAll('.rp-'+prefix).forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('[data-pfx="'+prefix+'"]').forEach(t=>t.classList.remove('active'));
+  var panel=document.getElementById(prefix+'-'+roleId);
+  if(panel) panel.classList.add('active');
+  var tab=document.querySelector('[data-pfx="'+prefix+'"][data-role="'+roleId+'"]');
+  if(tab) tab.classList.add('active');
+}
+ 
+function pct(a,b){ if(!b) return null; return Math.round(a/b*100); }
+ 
+function arrowCls(p){
+  if(p===null) return 'arr-neutral';
+  if(p>=60) return 'arr-green';
+  if(p>=30) return 'arr-yellow';
+  return 'arr-red';
+}
+ 
+function scoreChip(val){
+  if(val===null||val===undefined||val==='') return '&mdash;';
+  var v=parseInt(val);
+  var cls=v===100?'iq-100':v>=80?'iq-high':v>=50?'iq-mid':v>0?'iq-low':'iq-zero';
+  return '<span class="iq-score '+cls+'">'+v+'</span>';
+}
+ 
+function statusDotCls(s){ return s==='hold'?'dot-amber':s==='closed'?'dot-red':'dot-green'; }
+function statusBadgeHtml(s){
+  if(s==='hold') return '<span class="status-badge sbadge-amber">On Hold</span>';
+  if(s==='closed') return '<span class="status-badge sbadge-red">Closed</span>';
+  return '<span class="status-badge sbadge-green">Active</span>';
+}
+ 
+function makeTabs(roles, prefix){
+  return roles.map(function(r,i){
+    return '<button class="role-tab'+(i===0?' active':'')+'" data-pfx="'+prefix+'" data-role="'+r.id+'" onclick="showPanel(\''+prefix+'\',\''+r.id+'\')">'+r.short_name+'</button>';
+  }).join('');
+}
+ 
+function renderOverview(d){
+  var roles=d.roles, s=d.summary;
+  var cards=roles.map(function(r){
+    return '<div class="status-card" onclick="switchTab(\'pipeline\')">'
+      +'<div class="status-card-top"><h3>'+r.name+'</h3><div class="status-dot '+statusDotCls(r.status)+'"></div></div>'
+      +statusBadgeHtml(r.status)
+      +'<p>HM: '+r.hiring_manager+'<br>Recruiter: '+r.recruiter+'<br>Stage: '+r.current_stage+'<br>Active candidates: '+r.active_candidates+' &middot; Open '+r.days_open+' days</p>'
+      +'<div class="go">View pipeline &rarr;</div></div>';
+  }).join('');
+ 
+  var gridCols=roles.length<=3?'repeat('+roles.length+',minmax(0,1fr))':'repeat(3,minmax(0,1fr))';
+ 
+  document.getElementById('tab-overview').innerHTML=
+    '<div class="section-label">Role status</div>'
+    +'<div class="status-grid" style="grid-template-columns:'+gridCols+'">'+cards+'</div>'
+    +'<div class="section-label" style="margin-top:2.5rem;">YTD summary</div>'
+    +'<div class="kpi-grid kpi-3">'
+      +'<div class="kpi"><div class="label">Avg. days to fill</div><div class="metric-big">'+(s.avg_days_to_fill||'&mdash;')+'</div><div class="metric-sub">Across active roles</div></div>'
+      +'<div class="kpi"><div class="label">Interview pass rate</div><div class="metric-big">'+(s.pass_rate_pct!==undefined?s.pass_rate_pct+'%':'&mdash;')+'</div><div class="metric-sub">Recruiter screen &rarr; offer</div></div>'
+      +'<div class="kpi"><div class="label">Offers extended</div><div class="metric-big">'+(s.total_offers||0)+'</div>'
+        +'<div class="offer-rate-row"><span class="offer-rate-label">Acceptance rate</span><span class="offer-rate-val">'+(s.offer_acceptance_pct!==undefined?s.offer_acceptance_pct+'%':'&mdash;')+'</span></div></div>'
+    +'</div>'
+    +'<div class="timestamp">Data as of '+d.meta.generated+' &middot; Source: '+d.meta.source_note+'</div>';
+}
+ 
+function renderPipeline(d){
+  var roles=d.roles, stages=d.pipeline.stages;
+  var thCells='<th class="job-col">Job</th>';
+  stages.forEach(function(s,i){
+    var w=s.split(' '), mid=Math.ceil(w.length/2);
+    thCells+='<th class="stage-col">'+w.slice(0,mid).join(' ')+'<br>'+w.slice(mid).join(' ')+'</th>';
+    if(i<stages.length-1) thCells+='<th class="arrow-col"></th>';
+  });
+  thCells+='<th class="sm-col">Hire<br>Rate</th>';
+ 
+  var totals=stages.map(function(_,i){ return roles.reduce(function(sum,r){ return sum+(r.pipeline[i]||0); },0); });
+  var tCells='<td class="job-col total">'+roles.length+' role'+(roles.length!==1?'s':'')+' total</td>';
+  totals.forEach(function(c,i){
+    tCells+='<td><span class="stage-num">'+c+'</span></td>';
+    if(i<totals.length-1){ var p=pct(totals[i+1],totals[i]); tCells+='<td class="arrow-cell"><span class="'+arrowCls(p)+'">'+(p!==null?p+'%':'&mdash;')+'&rarr;</span></td>'; }
+  });
+  var hr=pct(totals[totals.length-1],totals[0]);
+  tCells+='<td class="hire-rate">'+(hr!==null?hr+'%':'&mdash;')+'</td>';
+ 
+  var rRows=roles.map(function(r){
+    var cells='<td class="job-col">'+r.name+'</td>';
+    r.pipeline.forEach(function(c,i){
+      cells+='<td><span class="stage-num">'+c+'</span></td>';
+      if(i<r.pipeline.length-1){ var p=pct(r.pipeline[i+1],r.pipeline[i]); cells+='<td class="arrow-cell"><span class="'+arrowCls(p)+'">'+(p!==null?p+'%':'&mdash;')+'&rarr;</span></td>'; }
+    });
+    var h=pct(r.pipeline[r.pipeline.length-1],r.pipeline[0]);
+    cells+='<td class="hire-rate">'+(h!==null?h+'%':'&mdash;')+'</td>';
+    return '<tr>'+cells+'</tr>';
+  }).join('');
+ 
+  var deiHtml='';
+  if(d.dei&&d.dei.female){
+    var f=d.dei.female;
+    var dStages=f.stages.map(function(s,i){
+      var fl=i===f.flag_index;
+      return '<div class="dei-stage'+(fl?' flagged':'')+'"><span class="dei-stage-name">'+s+'</span><span class="dei-stage-pct">'+f.pct[i]+'%</span></div>'+(i<f.stages.length-1?'<span class="dei-chevron">&rsaquo;</span>':'');
+    }).join('');
+    var tCls=f.focus==='process'?'tag-process':'tag-sourcing';
+    var tTxt=f.focus==='process'?'Process focus':'Sourcing focus';
+    deiHtml='<div class="section-label">Diversity signal</div>'
+      +'<div class="dei-card"><div class="dei-row">'
+      +'<div class="dei-row-label">Female<br>Representation</div>'
+      +'<div class="dei-funnel">'+dStages+'</div>'
+      +'<div class="dei-note-col"><span class="dei-focus-tag '+tCls+'">'+tTxt+'</span><div class="dei-note-text">'+f.note+'</div></div>'
+      +'</div></div>';
+  }
+ 
+  document.getElementById('tab-pipeline').innerHTML=
+    '<div class="section-label">Pass-through by role</div>'
+    +'<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0 16px;overflow:hidden;">'
+    +'<table class="pipeline-table"><thead><tr>'+thCells+'</tr></thead>'
+    +'<tbody><tr class="total-row">'+tCells+'</tr>'+rRows+'</tbody></table></div>'
+    +deiHtml
+    +'<div class="timestamp">Data as of '+d.meta.generated+' &middot; Source: '+d.meta.source_note+'</div>';
+}
+ 
+function renderEngagement(d){
+  var roles=d.roles, eng=d.engagement;
+  var sla=eng.sla_48hr_pct||0;
+  var slaCls=sla>=80?'sla-fill-green':'sla-fill-red';
+  var pillCls=sla>=80?'sla-pill-green':'sla-pill-red';
+ 
+  var pendRows=(eng.scorecards||[]).map(function(sc){
+    var done=sc.pct_done||0;
+    var fCls=done<30?'completion-fill-red':done<70?'completion-fill-amber':'completion-fill-red';
+    return '<tr><td class="due-name">'+sc.name+'</td><td style="font-size:12px;color:var(--text-faint)">'+sc.roles+'</td>'
+      +'<td><span class="due-chip">'+sc.pending+'</span></td><td>'+sc.total+'</td>'
+      +'<td><div class="completion-wrap"><div class="completion-track"><div class="'+fCls+'" style="width:'+done+'%"></div></div><span class="completion-pct">'+done+'%</span></div></td></tr>';
+  }).join('');
+ 
+  var odRows=(eng.overdue||[]).map(function(o){
+    return '<tr><td>'+o.name+'</td><td style="font-size:12px;color:var(--text-faint)">'+(o.roles||'')+'</td>'
+      +'<td><span class="badge slow-due">'+o.days_late+'d overdue</span></td></tr>';
+  }).join('');
+ 
+  var skillTabs=makeTabs(roles,'skill');
+  var skillPanels=roles.map(function(r,i){
+    var bh=r.bh_skills;
+    if(!bh) return '<div class="role-panel rp-skill'+(i===0?' active':'')+'" id="skill-'+r.id+'"><div style="padding:1.4rem;color:var(--text-faint)">No BrightHire skill data for this role.</div></div>';
+    var cov=(bh.covered||[]).map(function(s){ return '<div class="bh-row"><span class="bh-skill-label">'+s.skill+'</span><div class="bh-track"><div class="bh-fill-green" style="width:'+s.pct+'%"></div></div><span class="bh-pct-green">'+s.pct+'%</span></div>'; }).join('');
+    var gaps=(bh.gaps||[]).map(function(s){ var c=s.pct>=30?'amber':'red'; return '<div class="bh-row"><span class="bh-skill-label">'+s.skill+'</span><div class="bh-track"><div class="bh-fill-'+c+'" style="width:'+Math.max(s.pct,0.5)+'%"></div></div><span class="bh-pct-'+c+'">'+s.pct+'%</span></div>'; }).join('');
+    return '<div class="role-panel rp-skill'+(i===0?' active':'')+'" id="skill-'+r.id+'">'
+      +'<div class="bh-card-desc">'+(bh.description||'Skills from the job description. Each bar shows % of interviews where that skill was assessed.')+'</div>'
+      +'<div class="bh-role-meta">'+r.name+' &middot; '+bh.interviews+'</div>'
+      +'<div class="bh-split"><div class="bh-group"><div class="bh-group-head"><div class="bh-group-dot" style="background:var(--lawn)"></div><span class="bh-group-label green">Well covered (&ge;80%)</span></div>'+(cov||'<div style="color:var(--text-faint);font-size:13px;padding:4px 0">No skills at &ge;80%</div>')+'</div>'
+      +'<div class="bh-group"><div class="bh-group-head"><div class="bh-group-dot" style="background:var(--orange-dust)"></div><span class="bh-group-label gap">Coverage gaps (&lt;80%)</span></div>'+(gaps||'<div style="color:var(--text-faint);font-size:13px;padding:4px 0">No gaps &mdash; great coverage!</div>')+'</div></div></div>';
+  }).join('');
+ 
+  var iqHdr='<tr><th>Interviewer</th>'
+    +'<th class="iq-overall-h"><span class="tip" data-tip="Composite average of all 8 quality metric scores.">Overall &#x24D8;</span></th>'
+    +'<th><span class="tip" data-tip="% started on time (interviewer speaking within 5 min of scheduled start).">On-time &#x24D8;</span></th>'
+    +'<th><span class="tip" data-tip="% where candidate spoke 40-75% of the time.">Talk ratio &#x24D8;</span></th>'
+    +'<th><span class="tip" data-tip="% where interviewer\'s longest monologue was under 2 minutes.">Monologue &#x24D8;</span></th>'
+    +'<th><span class="tip" data-tip="% where interviewer avoided protected-class topics (EEOC compliance).">EEOC &#x24D8;</span></th>'
+    +'<th><span class="tip" data-tip="% where interviewer invited candidate questions in last 15 minutes.">Q. opp &#x24D8;</span></th>'
+    +'<th><span class="tip" data-tip="% where interviewer stated a structured agenda within first 10 minutes.">Agenda &#x24D8;</span></th>'
+    +'<th><span class="tip" data-tip="% of scorecards submitted within 24 hours.">FB time &#x24D8;</span></th>'
+    +'<th><span class="tip" data-tip="% of interviews where feedback was submitted within 7 days.">FB rate &#x24D8;</span></th></tr>';
+ 
+  var qualTabs=makeTabs(roles,'quality');
+  var qualPanels=roles.map(function(r,i){
+    var rows=(r.bh_quality||[]).map(function(q){
+      return '<tr><td>'+q.name+'<span class="iq-count">'+q.count+' interview'+(q.count!==1?'s':'')+'</span></td>'
+        +'<td class="iq-overall-c">'+scoreChip(q.overall)+'</td>'
+        +'<td>'+scoreChip(q.on_time)+'</td><td>'+scoreChip(q.talk)+'</td><td>'+scoreChip(q.mono)+'</td>'
+        +'<td>'+scoreChip(q.eeoc)+'</td><td>'+scoreChip(q.q_opp)+'</td><td>'+scoreChip(q.agenda)+'</td>'
+        +'<td>'+scoreChip(q.fb_time)+'</td><td>'+scoreChip(q.fb_rate)+'</td></tr>';
+    }).join('');
+    return '<div class="role-panel rp-quality'+(i===0?' active':'')+'" id="quality-'+r.id+'">'
+      +'<div class="bh-role-meta">'+r.name+'</div>'
+      +'<div class="iq-wrap"><table class="iq-table"><thead>'+iqHdr+'</thead><tbody>'
+      +(rows||'<tr><td colspan="10" style="padding:1rem;color:var(--text-faint)">No data available</td></tr>')
+      +'</tbody></table></div></div>';
+  }).join('');
+ 
+  var obsItems=(eng.observations||[]).map(function(o){ return '<div class="obs-item">'+o+'</div>'; }).join('');
+  var actItems=(eng.recommendations||[]).map(function(r){ return '<div class="act-item">'+r+'</div>'; }).join('');
+ 
+  document.getElementById('tab-engagement').innerHTML=
+    '<div class="section-label">Scorecard performance (48-hr SLA)</div>'
+    +'<div class="sla-panel"><div class="sla-group">'
+    +'<div class="sla-header"><span class="sla-label">On-time submission rate</span><span class="sla-pill '+pillCls+'">'+sla+'% on time</span></div>'
+    +'<div class="sla-track"><div class="'+slaCls+'" style="width:'+sla+'%"></div></div>'
+    +(eng.sla_ok_names?'<div class="sla-names">'+eng.sla_ok_names+'</div>':'')
+    +'</div>'
+    +(pendRows?'<hr class="sla-divider"><div class="sla-subhead">Outstanding scorecards</div><div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:8px;"><table class="due-table"><thead><tr><th>Interviewer</th><th>Role(s)</th><th>Pending</th><th>Total</th><th>Completion</th></tr></thead><tbody>'+pendRows+'</tbody></table></div>':'')
+    +(odRows?'<hr class="sla-divider"><div class="sla-subhead">Overdue submissions</div><table class="interviewer-table" style="margin-top:8px;"><thead><tr><th>Interviewer</th><th>Role(s)</th><th>Status</th></tr></thead><tbody>'+odRows+'</tbody></table>':'')
+    +'</div>'
+    +'<div class="divider"></div>'
+    +'<div class="section-label">Interview skill coverage &middot; BrightHire</div>'
+    +'<div class="bh-card"><div class="bh-card-header"><span class="bh-card-title">JD skill coverage across interviews</span><div class="role-tabs">'+skillTabs+'</div></div>'+skillPanels+'</div>'
+    +'<div class="divider"></div>'
+    +'<div class="section-label">Interview quality &middot; BrightHire</div>'
+    +'<div class="bh-card"><div class="bh-card-header"><span class="bh-card-title">Interviewer quality scores</span><div class="role-tabs">'+qualTabs+'</div></div>'
+    +'<div class="bh-card-desc">BrightHire scores each interview across 8 structural quality dimensions. Hover column headers for definitions.</div>'
+    +qualPanels+'</div>'
+    +'<div class="divider"></div>'
+    +'<div class="obs-act-card"><div class="obs-col"><div class="obs-head">Observations</div>'+obsItems+'</div>'
+    +'<div class="act-col"><div class="act-head">Recommended actions</div>'+actItems+'</div></div>'
+    +'<div class="timestamp">Data as of '+d.meta.generated+' &middot; Source: '+d.meta.source_note+'</div>';
+}
+ 
+function renderMetrics(d){
+  var m=d.metrics;
+  if(!m){ document.getElementById('tab-metrics').innerHTML='<div style="padding:2rem;color:var(--text-faint)">No metrics data available.</div>'; return; }
+  var alertCls=(m.hm_screen_decline_pct||0)>=15?'kpi-alert':'';
+  var flags=(m.flags||[]).map(function(f){ return '<div class="flag-box" style="margin-bottom:1.75rem;"><div class="flag-header">'+f.header+'</div><div class="flag-body">'+f.body+'</div>'+(f.meta?'<div class="flag-meta">'+f.meta+'</div>':'')+'</div>'; }).join('');
+  var dRows=(m.declines||[]).map(function(dec){ return '<tr><td>'+dec.interviewer+'</td><td style="font-size:12px;color:var(--text-faint)">'+dec.roles+'</td><td><span class="badge '+(dec.stage_type||'slow')+'">'+dec.stage+'</span></td><td>'+dec.count+'</td><td style="font-size:12px;color:var(--text-faint)">'+dec.candidates+'</td></tr>'; }).join('');
+  document.getElementById('tab-metrics').innerHTML=
+    '<div class="section-label">Decline summary</div>'
+    +'<div class="kpi-grid kpi-3" style="margin-bottom:1.4rem;">'
+    +'<div class="kpi"><div class="label">Total interview declines</div><div class="metric-big">'+(m.total_declines||0)+'</div><div class="metric-sub">YTD across all roles</div></div>'
+    +'<div class="kpi"><div class="label">Interviewers responsible</div><div class="metric-big">'+(m.interviewers_with_declines||0)+'</div></div>'
+    +'<div class="kpi '+alertCls+'"><div class="label">HM Screen decline rate</div><div class="metric-big">'+(m.hm_screen_decline_pct||0)+'%</div></div>'
+    +'</div>'+flags
+    +(dRows?'<div class="section-label">Declines by interviewer</div><div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2rem;"><table class="interviewer-table"><thead><tr><th>Interviewer</th><th>Role(s)</th><th>Stage</th><th>Declines</th><th>Candidates affected</th></tr></thead><tbody>'+dRows+'</tbody></table></div>':'')
+    +'<div class="timestamp">Data as of '+d.meta.generated+' &middot; Source: '+d.meta.source_note+'</div>';
+}
+ 
+function initTooltips(){
+  var popup=null;
+  document.addEventListener('mouseover',function(e){
+    var tip=e.target.closest('.tip');
+    if(!tip) return;
+    if(popup) popup.remove();
+    var text=tip.getAttribute('data-tip');
+    if(!text) return;
+    popup=document.createElement('div');
+    popup.className='tip-popup';
+    popup.textContent=text;
+    document.body.appendChild(popup);
+    var r=tip.getBoundingClientRect();
+    var left=r.left+window.scrollX+r.width/2-120;
+    if(left+240>window.innerWidth-8) left=window.innerWidth-248;
+    if(left<8) left=8;
+    popup.style.top=(r.bottom+window.scrollY+8)+'px';
+    popup.style.left=left+'px';
+  });
+  document.addEventListener('mouseout',function(e){
+    if(e.target.closest('.tip')&&popup){popup.remove();popup=null;}
+  });
+}
+ 
+function init(){
+  if(!window.PORCH_DATA){
+    document.body.innerHTML='<div style="padding:3rem;font-family:Helvetica Neue,sans-serif;color:#232F46"><h2 style="font-weight:400">No data loaded</h2><p style="margin-top:1rem;color:#4a5c72">Run build.py to generate a populated dashboard.</p></div>';
+    return;
+  }
+  var d=window.PORCH_DATA;
+  document.getElementById('report-title').textContent='The PORCH Report \u2014 '+d.meta.stakeholder;
+  document.getElementById('header-period').textContent=d.meta.period;
+  document.getElementById('header-range').textContent=d.meta.date_range;
+  document.getElementById('header-roles').textContent=d.roles.map(function(r){return r.short_name;}).join(' \u00b7 ');
+  renderOverview(d);
+  renderPipeline(d);
+  renderEngagement(d);
+  renderMetrics(d);
+  initTooltips();
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
