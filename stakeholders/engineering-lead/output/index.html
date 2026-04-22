@@ -1,8 +1,3 @@
-Porch template preview · HTML
-
-
-Google Chrome
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -220,7 +215,7 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:400;fon
   <div class="tab-panel" id="tab-engagement"></div>
   <div class="tab-panel" id="tab-metrics"></div>
 </div>
- 
+
 <script>window.PORCH_DATA = {
   "meta": {
     "company": "Nextdoor",
@@ -703,7 +698,7 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:400;fon
     ]
   }
 };</script>
- 
+
 <script>
 function switchTab(id){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -712,7 +707,7 @@ function switchTab(id){
   var tabs={overview:0,pipeline:1,engagement:2,metrics:3};
   document.querySelectorAll('.tab-btn')[tabs[id]].classList.add('active');
 }
- 
+
 function showPanel(prefix,roleId){
   document.querySelectorAll('.rp-'+prefix).forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('[data-pfx="'+prefix+'"]').forEach(t=>t.classList.remove('active'));
@@ -721,36 +716,36 @@ function showPanel(prefix,roleId){
   var tab=document.querySelector('[data-pfx="'+prefix+'"][data-role="'+roleId+'"]');
   if(tab) tab.classList.add('active');
 }
- 
+
 function pct(a,b){ if(!b) return null; return Math.round(a/b*100); }
- 
+
 function arrowCls(p){
   if(p===null) return 'arr-neutral';
   if(p>=60) return 'arr-green';
   if(p>=30) return 'arr-yellow';
   return 'arr-red';
 }
- 
+
 function scoreChip(val){
   if(val===null||val===undefined||val==='') return '&mdash;';
   var v=parseInt(val);
   var cls=v===100?'iq-100':v>=80?'iq-high':v>=50?'iq-mid':v>0?'iq-low':'iq-zero';
   return '<span class="iq-score '+cls+'">'+v+'</span>';
 }
- 
+
 function statusDotCls(s){ return s==='hold'?'dot-amber':s==='closed'?'dot-red':'dot-green'; }
 function statusBadgeHtml(s){
   if(s==='hold') return '<span class="status-badge sbadge-amber">On Hold</span>';
   if(s==='closed') return '<span class="status-badge sbadge-red">Closed</span>';
   return '<span class="status-badge sbadge-green">Active</span>';
 }
- 
+
 function makeTabs(roles, prefix){
   return roles.map(function(r,i){
     return '<button class="role-tab'+(i===0?' active':'')+'" data-pfx="'+prefix+'" data-role="'+r.id+'" onclick="showPanel(\''+prefix+'\',\''+r.id+'\')">'+r.short_name+'</button>';
   }).join('');
 }
- 
+
 function renderOverview(d){
   var roles=d.roles, s=d.summary;
   var cards=roles.map(function(r){
@@ -760,9 +755,9 @@ function renderOverview(d){
       +'<p>HM: '+r.hiring_manager+'<br>Recruiter: '+r.recruiter+'<br>Stage: '+r.current_stage+'<br>Active candidates: '+r.active_candidates+' &middot; Open '+r.days_open+' days</p>'
       +'<div class="go">View pipeline &rarr;</div></div>';
   }).join('');
- 
+
   var gridCols=roles.length<=3?'repeat('+roles.length+',minmax(0,1fr))':'repeat(3,minmax(0,1fr))';
- 
+
   document.getElementById('tab-overview').innerHTML=
     '<div class="section-label">Role status</div>'
     +'<div class="status-grid" style="grid-template-columns:'+gridCols+'">'+cards+'</div>'
@@ -775,7 +770,7 @@ function renderOverview(d){
     +'</div>'
     +'<div class="timestamp">Data as of '+d.meta.generated+' &middot; Source: '+d.meta.source_note+'</div>';
 }
- 
+
 function renderPipeline(d){
   var roles=d.roles, stages=d.pipeline.stages;
   var thCells='<th class="job-col">Job</th>';
@@ -785,7 +780,7 @@ function renderPipeline(d){
     if(i<stages.length-1) thCells+='<th class="arrow-col"></th>';
   });
   thCells+='<th class="sm-col">Hire<br>Rate</th>';
- 
+
   var totals=stages.map(function(_,i){ return roles.reduce(function(sum,r){ return sum+(r.pipeline[i]||0); },0); });
   var tCells='<td class="job-col total">'+roles.length+' role'+(roles.length!==1?'s':'')+' total</td>';
   totals.forEach(function(c,i){
@@ -794,7 +789,7 @@ function renderPipeline(d){
   });
   var hr=pct(totals[totals.length-1],totals[0]);
   tCells+='<td class="hire-rate">'+(hr!==null?hr+'%':'&mdash;')+'</td>';
- 
+
   var rRows=roles.map(function(r){
     var cells='<td class="job-col">'+r.name+'</td>';
     r.pipeline.forEach(function(c,i){
@@ -805,7 +800,7 @@ function renderPipeline(d){
     cells+='<td class="hire-rate">'+(h!==null?h+'%':'&mdash;')+'</td>';
     return '<tr>'+cells+'</tr>';
   }).join('');
- 
+
   var deiHtml='';
   if(d.dei&&d.dei.female){
     var f=d.dei.female;
@@ -822,7 +817,7 @@ function renderPipeline(d){
       +'<div class="dei-note-col"><span class="dei-focus-tag '+tCls+'">'+tTxt+'</span><div class="dei-note-text">'+f.note+'</div></div>'
       +'</div></div>';
   }
- 
+
   document.getElementById('tab-pipeline').innerHTML=
     '<div class="section-label">Pass-through by role</div>'
     +'<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0 16px;overflow:hidden;">'
@@ -831,13 +826,13 @@ function renderPipeline(d){
     +deiHtml
     +'<div class="timestamp">Data as of '+d.meta.generated+' &middot; Source: '+d.meta.source_note+'</div>';
 }
- 
+
 function renderEngagement(d){
   var roles=d.roles, eng=d.engagement;
   var sla=eng.sla_48hr_pct||0;
   var slaCls=sla>=80?'sla-fill-green':'sla-fill-red';
   var pillCls=sla>=80?'sla-pill-green':'sla-pill-red';
- 
+
   var pendRows=(eng.scorecards||[]).map(function(sc){
     var done=sc.pct_done||0;
     var fCls=done<30?'completion-fill-red':done<70?'completion-fill-amber':'completion-fill-red';
@@ -845,12 +840,12 @@ function renderEngagement(d){
       +'<td><span class="due-chip">'+sc.pending+'</span></td><td>'+sc.total+'</td>'
       +'<td><div class="completion-wrap"><div class="completion-track"><div class="'+fCls+'" style="width:'+done+'%"></div></div><span class="completion-pct">'+done+'%</span></div></td></tr>';
   }).join('');
- 
+
   var odRows=(eng.overdue||[]).map(function(o){
     return '<tr><td>'+o.name+'</td><td style="font-size:12px;color:var(--text-faint)">'+(o.roles||'')+'</td>'
       +'<td><span class="badge slow-due">'+o.days_late+'d overdue</span></td></tr>';
   }).join('');
- 
+
   var skillTabs=makeTabs(roles,'skill');
   var skillPanels=roles.map(function(r,i){
     var bh=r.bh_skills;
@@ -863,7 +858,7 @@ function renderEngagement(d){
       +'<div class="bh-split"><div class="bh-group"><div class="bh-group-head"><div class="bh-group-dot" style="background:var(--lawn)"></div><span class="bh-group-label green">Well covered (&ge;80%)</span></div>'+(cov||'<div style="color:var(--text-faint);font-size:13px;padding:4px 0">No skills at &ge;80%</div>')+'</div>'
       +'<div class="bh-group"><div class="bh-group-head"><div class="bh-group-dot" style="background:var(--orange-dust)"></div><span class="bh-group-label gap">Coverage gaps (&lt;80%)</span></div>'+(gaps||'<div style="color:var(--text-faint);font-size:13px;padding:4px 0">No gaps &mdash; great coverage!</div>')+'</div></div></div>';
   }).join('');
- 
+
   var iqHdr='<tr><th>Interviewer</th>'
     +'<th class="iq-overall-h"><span class="tip" data-tip="Composite average of all 8 quality metric scores.">Overall &#x24D8;</span></th>'
     +'<th><span class="tip" data-tip="% started on time (interviewer speaking within 5 min of scheduled start).">On-time &#x24D8;</span></th>'
@@ -874,7 +869,7 @@ function renderEngagement(d){
     +'<th><span class="tip" data-tip="% where interviewer stated a structured agenda within first 10 minutes.">Agenda &#x24D8;</span></th>'
     +'<th><span class="tip" data-tip="% of scorecards submitted within 24 hours.">FB time &#x24D8;</span></th>'
     +'<th><span class="tip" data-tip="% of interviews where feedback was submitted within 7 days.">FB rate &#x24D8;</span></th></tr>';
- 
+
   var qualTabs=makeTabs(roles,'quality');
   var qualPanels=roles.map(function(r,i){
     var rows=(r.bh_quality||[]).map(function(q){
@@ -890,10 +885,10 @@ function renderEngagement(d){
       +(rows||'<tr><td colspan="10" style="padding:1rem;color:var(--text-faint)">No data available</td></tr>')
       +'</tbody></table></div></div>';
   }).join('');
- 
+
   var obsItems=(eng.observations||[]).map(function(o){ return '<div class="obs-item">'+o+'</div>'; }).join('');
   var actItems=(eng.recommendations||[]).map(function(r){ return '<div class="act-item">'+r+'</div>'; }).join('');
- 
+
   document.getElementById('tab-engagement').innerHTML=
     '<div class="section-label">Scorecard performance (48-hr SLA)</div>'
     +'<div class="sla-panel"><div class="sla-group">'
@@ -917,7 +912,7 @@ function renderEngagement(d){
     +'<div class="act-col"><div class="act-head">Recommended actions</div>'+actItems+'</div></div>'
     +'<div class="timestamp">Data as of '+d.meta.generated+' &middot; Source: '+d.meta.source_note+'</div>';
 }
- 
+
 function renderMetrics(d){
   var m=d.metrics;
   if(!m){ document.getElementById('tab-metrics').innerHTML='<div style="padding:2rem;color:var(--text-faint)">No metrics data available.</div>'; return; }
@@ -934,7 +929,7 @@ function renderMetrics(d){
     +(dRows?'<div class="section-label">Declines by interviewer</div><div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2rem;"><table class="interviewer-table"><thead><tr><th>Interviewer</th><th>Role(s)</th><th>Stage</th><th>Declines</th><th>Candidates affected</th></tr></thead><tbody>'+dRows+'</tbody></table></div>':'')
     +'<div class="timestamp">Data as of '+d.meta.generated+' &middot; Source: '+d.meta.source_note+'</div>';
 }
- 
+
 function initTooltips(){
   var popup=null;
   document.addEventListener('mouseover',function(e){
@@ -958,7 +953,7 @@ function initTooltips(){
     if(e.target.closest('.tip')&&popup){popup.remove();popup=null;}
   });
 }
- 
+
 function init(){
   if(!window.PORCH_DATA){
     document.body.innerHTML='<div style="padding:3rem;font-family:Helvetica Neue,sans-serif;color:#232F46"><h2 style="font-weight:400">No data loaded</h2><p style="margin-top:1rem;color:#4a5c72">Run build.py to generate a populated dashboard.</p></div>';
