@@ -419,32 +419,27 @@ function metricsInsights(data) {
   if (rescPct >= 20) {
     obs.push(rescPct + '% of facilitated interviews required rescheduling — above the 20% threshold.');
   }
-  const disr = (coord.rescheduled || 0) + (coord.canceled || 0) + (coord.changed || 0);
+  const disr = coord.interview_changes || 0;
   const intvBase = interviewsCompleted(data);
   if (intvBase > 0 && disr > 0) {
-    const per3 = (disr / intvBase * 3);
-    const ratioWord = per3 >= 2.5 ? 'roughly three changes for every four interviews run'
-      : per3 >= 1.8 ? 'roughly two changes for every three interviews run'
-      : per3 >= 1.2 ? 'roughly one change for every two interviews run'
+    const changeRate = Math.round(disr / intvBase * 100);
+    const ratioWord = changeRate >= 50 ? 'more than one change for every two interviews run'
+      : changeRate >= 30 ? 'roughly one change for every three interviews run'
+      : changeRate >= 15 ? 'one change for every six to seven interviews run'
       : 'a light change load relative to interviews run';
-    obs.push('Coordinators absorbed ' + fmt(disr) + ' schedule disruptions against ' + fmt(intvBase) + ' interviews — ' + ratioWord + '.');
+    obs.push('Coordinators handled ' + fmt(disr) + ' interview changes against ' + fmt(intvBase) + ' interviews (' + changeRate + '%) — ' + ratioWord + '.');
   }
-  // Who drives the reschedules — interviewer vs candidate (from reschedule reasons).
-  const rReasons = coord.reschedule_reasons || [];
-  const resTotal = coord.rescheduled || rReasons.reduce((s, r) => s + (r.count || 0), 0);
-  if (resTotal > 0 && rReasons.length) {
-    const intw = rReasons.filter(r => /declined|interviewer/i.test(r.reason || '')).reduce((s, r) => s + r.count, 0);
-    const intwPct = Math.round(intw / resTotal * 100);
-    if (intwPct >= 50) {
-      obs.push('Interviewers drove ' + intwPct + '% of reschedules (vs candidates) — the churn is mostly coming from the panel side, not candidates.');
-    }
+  // Who drives the changes — interviewer vs candidate (from rsc_interviewer_pct).
+  const rscIntvPct = coord.rsc_interviewer_pct || 0;
+  if (rscIntvPct >= 50) {
+    obs.push('Interviewers drove ' + rscIntvPct + '% of changes (vs candidates) — the churn is mostly coming from the panel side, not candidates.');
   }
   // Insights & recommendations — three themed takeaways (the boxes above are the evidence,
   // so these stay generalized and story-led): calendar hygiene, coordinator time, candidate
   // experience. Calendar/coordinator always apply where there's decline/coordination signal;
   // the candidate-experience one is gated on coordination data existing.
   const hasDeclineSignal = (data.decline_reasons || []).length > 0 || all.some(i => (i.declines || 0) > 0);
-  const hasCoordSignal = (coord.rescheduled || 0) + (coord.canceled || 0) + (coord.changed || 0) > 0;
+  const hasCoordSignal = disr > 0;
   if (hasDeclineSignal || hasCoordSignal) {
     rec.push('<strong style="color:#b45309;font-weight:700">Calendar hygiene</strong> — the biggest lever sits with interviewers keeping availability accurate and honoring committed slots. Most reschedules and declines here are avoidable with cleaner upfront calendars.');
     rec.push('<strong style="color:#b45309;font-weight:700">Coordinator time</strong> — a simple expectation when declining (give a reason, suggest a swap or a new time) would turn dead-end declines into something a coordinator can act on, cutting redo work.');
@@ -537,11 +532,9 @@ function renderOverview(data) {
   // ── Card-wall values pulled from the Metrics (coordination) domain ──
   const coord = data.coordination || {};
   const coordFac = coord.facilitated || 0;
-  const disruptions = (coord.rescheduled || 0) + (coord.canceled || 0) + (coord.changed || 0);
-  const rr = coord.reschedule_reasons || [];
-  const rrTotal = coord.rescheduled || rr.reduce((s, r) => s + (r.count || 0), 0);
-  const intwDriven = rr.filter(r => /declined|interviewer/i.test(r.reason || '')).reduce((s, r) => s + r.count, 0);
-  const intwReschedPct = rrTotal ? Math.round(intwDriven / rrTotal * 100) : 0;
+  const chgCount = coord.interview_changes || 0;
+  const chgRate  = coord.change_rate || 0;
+  const rscIntvPct = coord.rsc_interviewer_pct || 0;
   const declinesTotal = totalDeclines(data);
   // ── 1. Top-line stat cards ───────────────────────────────────
   const statCardsHtml = '<div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">' +
@@ -733,15 +726,14 @@ function renderOverview(data) {
   }
   // Metrics cluster
   const metCards = [];
-  if (coordFac > 0) {
-    const disRate = Math.round(disruptions / coordFac * 100);
-    metCards.push(glanceCard('Scheduling disruptions',
-      '<span style="color:' + AMBER + '">' + fmt(disruptions) + '</span>',
-      'reschedules, cancellations &amp; interviewer swaps · ≈' + disRate + ' per 100 interviews'));
-    if (rrTotal > 0) {
-      metCards.push(glanceCard('Reschedules from interviewers',
-        '<span style="color:' + AMBER + '">' + intwReschedPct + '%</span>',
-        'of reschedules'));
+  if (coordFac > 0 && chgCount > 0) {
+    metCards.push(glanceCard('Interview changes',
+      '<span style="color:' + AMBER + '">' + fmt(chgCount) + '</span>',
+      'reschedules, cancels &amp; changes · ' + Math.round(chgRate) + '% of scheduled'));
+    if (rscIntvPct > 0) {
+      metCards.push(glanceCard('Interviewer-driven',
+        '<span style="color:' + AMBER + '">' + rscIntvPct + '%</span>',
+        'of changes attributed to interviewers'));
     }
   }
   // Leading cause of declines — "no reason provided" (the Other bucket). Summary-only.
@@ -1089,8 +1081,8 @@ function renderEngagement(data) {
     html += sectionShell('What to know', body, 'Key items a leader should review before scrolling through the data below.');
   }
 
-  // ── 2. Load balance (prepended at top, Engineering-only) ─────────────────
-  // lbHtml is already computed above; inserted via innerHTML assignment at end.
+  // ── 2. Load balance (Engineering-only) — inserted immediately after What to know ──
+  html += lbHtml;
 
   // ── 3. Scorecard performance ─────────────────────────────────────────────
   if (allPeople.length) {
@@ -1332,7 +1324,7 @@ function renderEngagement(data) {
   }
 
   html += '<div class="timestamp">Generated ' + D.meta.generated_date + ' · Source: Greenhouse · BrightHire · ModernLoop</div>';
-  document.getElementById('tab-engagement').innerHTML = lbHtml + html;
+  document.getElementById('tab-engagement').innerHTML = html;
 }
 // ════════════════════════════════════════════════════════════════
 // INTERVIEW METRICS TAB
