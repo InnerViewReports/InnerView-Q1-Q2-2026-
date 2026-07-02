@@ -390,6 +390,18 @@ function engagementInsights(sc, bh, data) {
     ] };
   }
 
+  // Sales — curated: two items; positives with the adoption nudge folded in.
+  if (currentDept === 'Sales') {
+    return { items: [
+      { color: GRN, title: 'Where BrightHire ran, coverage looks strong',
+        body: '<strong style="color:' + AMB + '">most loops went uncaptured</strong> \u2014 well-covered skills far outnumber the gaps on the two captured roles. Encouraging your interviewers to run interviews on BrightHire gets the other loops captured here too.' },
+      { color: GRN, title: 'Follow-through held all period',
+        body: 'Zero unsubmitted scorecards, and most of the panel submits inside the window. A steady habit worth acknowledging.' },
+      { color: GRAY, title: '74 trained ICs sat out this period',
+        body: 'No issue given the senior openings, but a deep bench worth using: when possible, broaden the panel options so more folks get tapped and candidates meet a more diverse set of interviewers.' },
+    ] };
+  }
+
   // Finance — curated: a small-data period with good signals; two items only.
   if (currentDept === 'Finance') {
     return { items: [
@@ -420,7 +432,7 @@ function engagementInsights(sc, bh, data) {
           body: 'Consider a pre-brief and a reminder that BrightHire is tracking these signals \u2014 the rest of the panel is meeting the bar.' });
         items.push({ color: GRN, title: 'Loops are early on most open roles',
           body: 'Everything looks on pace given panel sizes and where candidates currently sit in their stages.' });
-      } else if (currentDept !== 'Account Management' && currentDept !== 'Engineering' && currentDept !== 'Data Science') {
+      } else if (currentDept !== 'Account Management' && currentDept !== 'Engineering' && currentDept !== 'Data Science' && currentDept !== 'Product Management') {
         // Account Management and Engineering: quality item suppressed per curation —
         // their boxes carry customized scorecard / load / coverage items instead.
         items.push({ color: AMB, title: 'Quality flags sit with a few',
@@ -436,7 +448,12 @@ function engagementInsights(sc, bh, data) {
   const latePct = withSub.length ? Math.round(late.length / withSub.length * 100) : 0;
   const stillDue = people.reduce((s, p) => s + (p.still_due || 0), 0);
   if ((latePct >= 30 || stillDue > 0) && currentDept !== 'Marketing') {
-    if (currentDept === 'Data Science') {
+    if (currentDept === 'Product Management') {
+      // Curated: combines the quality flags and scorecard slips — both sit with
+      // senior (M6/M7) panelists, so the ask stays a light visibility nudge.
+      items.push({ color: AMB, title: 'A light nudge for the senior panelists',
+        body: 'The quality flags and scorecard slips here sit with senior leaders carrying heavy calendars \u2014 likely bandwidth, not habit. A quick reminder that BrightHire tracks these signals, plus closing scorecards at debriefs, is usually enough to lift both.' });
+    } else if (currentDept === 'Data Science') {
       // Curated: risk-framed combined blurb — timing outliers plus the unsubmitted pile.
       items.push({ color: RD, title: 'Slow and missing scorecards risk slowing decisions',
         body: 'Sagar and Allison need nudging: nearly 13 days on average puts hiring decisions at risk of stalling \u2014 worth considering other EMs on these loops if bandwidth is the blocker. And with 29 scorecards never submitted, debriefs are the coaching moment to ensure submission loops get closed.' });
@@ -473,6 +490,10 @@ function engagementInsights(sc, bh, data) {
     const idleBench = unused >= 5 && util < 75;
     if (currentDept === 'Marketing') {
       // suppressed per curation — Marketing's box carries quality, loops-early, and skills
+    } else if (currentDept === 'Product Management') {
+      // Curated: 21 of 28 trained panelists active (75%) — among the best in the report.
+      items.push({ color: GRN, title: 'Panel utilization is a bright spot',
+        body: 'Nearly 75% of trained panelists interviewed this period, so load is being shared rather than sitting with a few. One of the healthiest participation rates in the report.' });
     } else if (currentDept === 'Engineering') {
       // Curated: most open Engineering roles are IC3/IC4-level, yet 35 trained IC3/IC4
       // panelists went unused this period while active IC5s average 14.7 interviews
@@ -507,7 +528,15 @@ function engagementInsights(sc, bh, data) {
     else if (worst) parts.push('&ldquo;' + worst[0] + '&rdquo; sits at ' + Math.min(...worst[1].map(x => x.pct)) + '% in ' + worst[1][0].role);
     if (ghostCount > 0) parts.push(ghostCount + ' role' + (ghostCount !== 1 ? 's' : '') + ' ran ' + (ghostCount !== 1 ? 'their loops' : 'its loop') + ' entirely without BrightHire');
     if (parts.length) {
-      if (currentDept === 'Data Science') {
+      if (currentDept === 'Campus') {
+        // Curated: recurring-skill phrase dropped; ghost count stays dynamic, full tail kept.
+        items.push({ color: AMB, title: 'Skill coverage has blind spots',
+          body: ghostCount + ' role' + (ghostCount !== 1 ? 's' : '') + ' ran ' + (ghostCount !== 1 ? 'their loops' : 'its loop') + ' entirely without BrightHire. Encouraging your interviewers to run interviews on BrightHire gets those loops captured here, and for the skills coming up short, mapping them directly into scorecards helps make sure they don\u2019t go undiscussed.' });
+      } else if (currentDept === 'Product Management') {
+        // Curated: 57 well-covered vs 4 gaps across the captured roles.
+        items.push({ color: GRN, title: 'Most skills are well covered in interviews',
+          body: 'Across the captured roles, well-covered skills far outnumber the gaps. Well done!' });
+      } else if (currentDept === 'Data Science') {
         // Curated: short mapping nudge, then the adoption win — DS is fully captured.
         items.push({ color: AMB, title: 'Skill coverage has blind spots',
           body: 'For the skills coming up short, mapping them directly into scorecards helps make sure they don\u2019t go undiscussed.' });
@@ -892,7 +921,7 @@ function renderOverview(data) {
     : glanceCard('Scorecard SLA', cval(GRAY, '—'), 'no scorecard data this period'));
   // Mirrors the "Dept panel size" KPI on the load balance section
   engCards.push(lbUtil !== null
-    ? glanceCard('Panel utilization', cval(lbUtil < 75 ? AMBER : GREEN, lbUtil + '%'),
+    ? glanceCard('Panel utilization', cval(lbUtil >= 70 ? GREEN : AMBER, lbUtil + '%'),
         lbUntapped + ' untapped of ' + fmt(lbPanel.length) + ' panelists')
     : glanceCard('Panel utilization', cval(GRAY, '—'), 'panel roster unavailable'));
   // Mirrors the "Load concentration" KPI on the load balance section
@@ -1106,7 +1135,7 @@ function loadBalanceSection(data) {
     lbBody += '<div class="kpi-grid" style="grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px">' +
       '<div class="kpi"><div class="label">Dept panel size</div>' +
         '<div class="metric-big">' + engPanel.length + '</div>' +
-        '<div class="metric-sub"><span' + (utilPct < 75 ? ' style="color:#d97706;font-weight:700"' : '') + '>' + epUnused.length + ' untapped</span> · <span' + (utilPct < 75 ? ' style="color:#d97706;font-weight:700"' : '') + '>' + utilPct + '% utilized</span></div></div>' +
+        '<div class="metric-sub">' + epUnused.length + ' untapped · <span style="color:' + (utilPct >= 70 ? '#1B8751' : '#d97706') + ';font-weight:700">' + utilPct + '%</span> utilized</div></div>' +
       '<div class="kpi"><div class="label">Load concentration</div>' +
         '<div style="display:flex;align-items:baseline;gap:6px;margin:2px 0 8px">' +
           '<span class="metric-big' + (concTone ? ' ' + concTone : '') + '" style="margin:0">' + top20pct + '%</span>' +
@@ -1626,7 +1655,21 @@ function renderMetrics(data) {
       .filter(i => !icOnly || /^IC[1-6]$/.test(i.level || ''))
       .sort((a, b) => (b.completed - a.completed) || ((a.declines || 0) - (b.declines || 0)));
     if (!aoOverride && actives.length) {
-      const top = actives.slice(0, 5);
+      // Blended selection: top 3 by volume plus the two busiest ICs not already
+      // listed (marked with an "IC" chip). Finance and Sales keep the true top 5 —
+      // the blend would displace their real load-bearers — and Engineering stays
+      // IC-only via the filter above. Short IC benches fill remaining slots by volume.
+      const blend = !icOnly && currentDept !== 'Finance' && currentDept !== 'Sales';
+      const icSlot = new Set();
+      let top;
+      if (blend) {
+        const isIC = i => /^IC[1-6]$/.test(i.level || '');
+        top = actives.slice(0, 3);
+        actives.filter(i => isIC(i) && !top.includes(i)).slice(0, 2).forEach(i => { top.push(i); icSlot.add(i); });
+        for (const i of actives) { if (top.length >= 5) break; if (!top.includes(i)) top.push(i); }
+      } else {
+        top = actives.slice(0, 5);
+      }
       const totComp = actives.reduce((s2, i) => s2 + i.completed, 0);
       const rows = top.map((i, idx) => {
         const t = (i.completed || 0) + (i.declines || 0);
@@ -1637,7 +1680,8 @@ function renderMetrics(data) {
           : '<span style="display:inline-block;width:18px;text-align:center;color:#9ca3af;font-size:11px;margin-right:8px">' + (idx + 1) + '</span>';
         return '<tr>' +
           '<td style="font-weight:500">' + rank + i.name +
-            (i.level ? '<span style="font-size:11px;color:#9ca3af;margin-left:8px">' + i.level + '</span>' : '') + '</td>' +
+            (i.level ? '<span style="font-size:11px;color:#9ca3af;margin-left:8px">' + i.level + '</span>' : '') +
+            (icSlot.has(i) ? '<span style="background:#e8f0e9;color:#1f3b2b;font-size:10px;font-weight:700;border-radius:999px;padding:2px 8px;margin-left:8px">IC</span>' : '') + '</td>' +
           '<td style="color:var(--text-secondary)">' + (i.team || '—') + '</td>' +
           '<td style="text-align:right;font-weight:700">' + fmt(i.completed) + '</td>' +
           '<td style="text-align:right;color:var(--text-secondary)">' + share + '%</td>' +
@@ -1656,7 +1700,7 @@ function renderMetrics(data) {
 
   // ── Insights and recommendations — the one consolidated box, bottom of the tab ──
   {
-    const GRN = '#1B8751', AMB = '#b45309', RD = '#991b1b', NEU = '#232F46';
+    const GRN = '#1B8751', AMB = '#b45309', RD = '#991b1b', NEU = '#232F46', GRAY = '#6b7280';
     const mItems = [];
     const chgCountK = coord.interview_changes || 0;
     const chgRateK  = Math.round(coord.change_rate || 0);
@@ -1674,7 +1718,21 @@ function renderMetrics(data) {
     } else {
 
     // 1. Volume and change load
-    if (coordFac > 0) {
+    if (currentDept === 'Campus' && coordFac > 0) {
+      // Curated pair: the manageable-load blurb stays (counts only — the rates live in
+      // the churn item below to avoid repeating them), then the interviewer-driven story.
+      mItems.push({ color: NEU, title: 'Change load stayed manageable',
+        body: fmt(coordFac) + ' interviews were scheduled for ' + fmt(coordTotalCand) + ' candidates, with ' + fmt(coord.interview_changes || 0) + ' changes logged.' });
+      // 67% = interviewer-driven share of the 6 tracked reschedule reasons
+      // (4 "Interviewer declined - swap" / 2 candidate-requested). Rates stay dynamic.
+      mItems.push({ color: AMB, title: 'Interviewer availability drove the churn',
+        body: 'The change load was light (' + Math.round(coord.change_rate || 0) + '%), but ' + (coord.rsc_interviewer_pct || 0) + '% of tracked reschedules were interviewer declines needing swaps. The coaching opportunity lies with the junior engineers on these loops \u2014 a nudge to keep calendars up to date and honor committed interview slots.' });
+    } else if (currentDept === 'Engineering' && coordFac > 0) {
+      // Curated two-tone: the volume recap is dropped (Coordination load cards above
+      // carry it); the count stays dynamic.
+      mItems.push({ color: GRAY, title: 'Change load was moderate',
+        body: '<strong style="color:' + AMB + '">schedule churn is mostly interviewer-driven</strong> \u2014 ' + fmt(coord.interview_changes || 0) + ' changes were logged this period, with interviewers initiating over half.' });
+    } else if (coordFac > 0) {
       let bodyLine = fmt(coordFac) + ' interviews were scheduled for ' + fmt(coordTotalCand) + ' candidates';
       if (chgCountK > 0) {
         bodyLine += ', with ' + fmt(chgCountK) + ' changes logged (' + chgRateK + '%' + (rscIntvK >= 50 ? ', mostly interviewer-initiated at ' + rscIntvK + '%' : '') + ').';
@@ -1743,8 +1801,8 @@ function renderMetrics(data) {
 
     // Engineering: closing item — the decliner split, curated
     if (currentDept === 'Engineering') {
-      mItems.push({ color: AMB, title: 'Declines trace to a repeat group',
-        body: '61% of active interviewers here declined at least once, leaving 39% as consistently reliable.' });
+      mItems.push({ color: AMB, title: 'Declines trace to a repeat group \u2014 and may be a norm',
+        body: '61% of active interviewers declined at least once, leaving 39% consistently reliable. Across the company\u2019s largest interviewing pool, that split suggests declining has drifted toward normal. A coaching opportunity for EMs: advocate for their ICs to stay engaged and reliable on committed loops.' });
     }
 
     if (!mItems.length) {
