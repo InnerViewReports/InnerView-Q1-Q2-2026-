@@ -383,7 +383,7 @@ function renderAllDepartments() {
     '<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">How consistently JD skills are assessed, per role (' + roleRows.length + ' roles)</div>' +
     '<div style="font-size:11px;color:#0F6E56;font-weight:700;margin-bottom:5px">Best covered</div>' +
     best.map(r => roleLine(r, '#0F6E56')).join('') +
-    '<div style="font-size:11px;color:#A32D2D;font-weight:700;margin:12px 0 5px">Weakest 3 \u2014 roles we\u2019re not covering well</div>' +
+    '<div style="font-size:11px;color:#A32D2D;font-weight:700;margin:12px 0 5px">Weakest 3 \u2014 roles where JD topics aren\u2019t making it into interviews</div>' +
     worst.map(r => roleLine(r, '#A32D2D')).join('') +
     '</div>';
 
@@ -401,10 +401,10 @@ function renderAllDepartments() {
   const aiAvg = aiPcts.length ? Math.round(aiPcts.reduce((s, x) => s + x, 0) / aiPcts.length) : null;
   const aiCard = aiAvg != null
     ? '<div style="background:#fbfcfd;border:1px solid #dbe1ea;border-radius:10px;padding:14px">' +
-      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:10px">Topic focus \u00b7 AI</div>' +
+      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:10px">AI as a hiring priority</div>' +
       '<div style="font-size:30px;font-weight:700;color:#3C3489;line-height:1">' + aiAvg + '%</div>' +
-      '<div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin:6px 0 10px">average coverage of AI-related skills across ' + aiRoleSet.size + ' roles in ' + aiDeptSet.size + ' departments</div>' +
-      '<div style="font-size:10.5px;color:var(--text-muted);border-top:0.5px solid var(--border);padding-top:8px;font-style:italic">Grouped across ' + aiPcts.length + ' AI-named skills (e.g. AI Utilization, AI Tools, Machine Learning) \u2014 not a single BrightHire metric.</div>' +
+      '<div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin:6px 0 10px">of interviews assessed an AI-related skill</div>' +
+      '<div style="font-size:10.5px;color:var(--text-muted);border-top:0.5px solid var(--border);padding-top:8px;font-style:italic">Across ' + aiRoleSet.size + ' roles in ' + aiDeptSet.size + ' departments \u00b7 grouped across AI-named skills (e.g. AI Utilization, AI Tools, Machine Learning)</div>' +
       '</div>'
     : '';
 
@@ -415,8 +415,8 @@ function renderAllDepartments() {
     '<div style="font-size:12px;color:var(--text-secondary)">' + sub + '</div></div>';
   const kpiStrip = '<div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">' +
     kpi('Interviews completed', fmt(totCompleted), depts.length + ' departments') +
-    kpi('Org decline rate', orgRate + '%', fmt(totDeclines) + ' declines') +
-    kpi('Interview changes', fmt(totChanges), 'across all departments') +
+    kpi('Interviews declined by interviewers', orgRate + '%', fmt(totDeclines) + ' of ' + fmt(totCompleted) + ' interviews were declined') +
+    kpi('Interview scheduling changes', fmt(totChanges), 'across all departments') +
     kpi('Active interviewers', fmt(totActive), 'org-wide') +
     '</div>';
 
