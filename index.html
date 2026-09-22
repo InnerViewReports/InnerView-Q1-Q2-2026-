@@ -379,7 +379,7 @@ function renderAllDepartments() {
     '<span>' + r.role + ' <span style="color:var(--text-muted)">\u00b7 ' + r.dept + '</span></span>' +
     '<span style="color:' + color + ';font-weight:700">' + r.avg + '%</span></div>';
   const skillsCard = '<div style="background:#fbfcfd;border:1px solid #dbe1ea;border-radius:10px;padding:14px">' +
-    '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:3px">Skill coverage \u00b7 by role</div>' +
+    '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:3px">Interview rigor \u00b7 by role</div>' +
     '<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">How consistently JD skills are assessed, per role (' + roleRows.length + ' roles)</div>' +
     '<div style="font-size:11px;color:#0F6E56;font-weight:700;margin-bottom:5px">Best covered</div>' +
     best.map(r => roleLine(r, '#0F6E56')).join('') +
@@ -399,12 +399,38 @@ function renderAllDepartments() {
     });
   });
   const aiAvg = aiPcts.length ? Math.round(aiPcts.reduce((s, x) => s + x, 0) / aiPcts.length) : null;
-  const aiCard = aiAvg != null
+  // ══ COACHING OPPORTUNITIES (Level 3 — grouped by theme) ══
+  // Reuses the report's coaching rule: >=5 interviews, overall <80, 3+ of 8 signals <80.
+  const CSIGS = [['on_time','On-time start'],['talk_ratio','Talk ratio'],['monologue','Monologue'],['eeoc','EEOC'],['q_opp','Question opportunity'],['agenda','Agenda-setting'],['fb_time','Feedback timeliness'],['fb_rate','Feedback rate']];
+  const C_MIN = 5, C_TH = 80;
+  let coachFlagged = 0; const coachDepts = new Set(); const themeCount = {};
+  CSIGS.forEach(([, lbl]) => themeCount[lbl] = 0);
+  depts.forEach(name => {
+    (D.data[name].bh_quality || []).forEach(r => {
+      if ((r.count || 0) >= C_MIN && (r.overall != null ? r.overall : 100) < C_TH) {
+        const weak = CSIGS.filter(([k]) => r[k] != null && r[k] < C_TH);
+        if (weak.length >= 3) {
+          coachFlagged++; coachDepts.add(name);
+          weak.forEach(([, lbl]) => themeCount[lbl]++);
+        }
+      }
+    });
+  });
+  const themes = Object.entries(themeCount).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const themeMax = themes.length ? themes[0][1] : 1;
+  const themeColor = c => c / themeMax >= 0.8 ? '#BA6029' : c / themeMax >= 0.55 ? '#F6BF56' : '#c9a24a';
+  const coachingCard = coachFlagged > 0
     ? '<div style="background:#fbfcfd;border:1px solid #dbe1ea;border-radius:10px;padding:14px">' +
-      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:10px">AI as a hiring priority</div>' +
-      '<div style="font-size:30px;font-weight:700;color:#3C3489;line-height:1">' + aiAvg + '%</div>' +
-      '<div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin:6px 0 10px">of interviews assessed an AI-related skill</div>' +
-      '<div style="font-size:10.5px;color:var(--text-muted);border-top:0.5px solid var(--border);padding-top:8px;font-style:italic">Across ' + aiRoleSet.size + ' roles in ' + aiDeptSet.size + ' departments \u00b7 grouped across AI-named skills (e.g. AI Utilization, AI Tools, Machine Learning)</div>' +
+      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:3px">Coaching opportunities</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">' + coachFlagged + ' interviewers across ' + coachDepts.size + ' departments show a coachable pattern (5+ interviews, quality signals below the bar)</div>' +
+      '<div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:9px">Most common areas to coach</div>' +
+      '<div style="display:flex;flex-direction:column;gap:9px">' +
+        themes.map(([lbl, c]) =>
+          '<div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px"><span>' + lbl + '</span><span style="color:var(--text-secondary)">' + c + ' interviewer' + (c !== 1 ? 's' : '') + '</span></div>' +
+          '<div style="height:7px;background:#eef1f5;border-radius:4px;overflow:hidden"><div style="width:' + Math.round(c / themeMax * 100) + '%;height:100%;background:' + themeColor(c) + '"></div></div></div>'
+        ).join('') +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);border-top:0.5px solid var(--border);margin-top:14px;padding-top:9px;line-height:1.5">Concentrated in a few areas \u2014 the top themes suggest a shared training need, not just individual gaps. Pick a department to see who.</div>' +
       '</div>'
     : '';
 
@@ -413,11 +439,17 @@ function renderAllDepartments() {
     '<div class="stat-card"><div class="stat-label">' + label + '</div>' +
     '<div class="stat-value">' + value + '</div>' +
     '<div style="font-size:12px;color:var(--text-secondary)">' + sub + '</div></div>';
+  const aiKpi = aiAvg != null
+    ? '<div class="stat-card"><div class="stat-label">AI as a hiring priority</div>' +
+      '<div class="stat-value" style="color:#3C3489">' + aiAvg + '%</div>' +
+      '<div style="font-size:12px;color:var(--text-secondary)">of interviews assessed an AI skill ' +
+      '<span title="Across ' + aiRoleSet.size + ' roles in ' + aiDeptSet.size + ' departments; grouped across AI-named skills (e.g. AI Utilization, AI Tools, Machine Learning)" style="border-bottom:1px dotted #9ca3af;cursor:help;color:#9ca3af">\u24D8</span></div></div>'
+    : '';
   const kpiStrip = '<div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">' +
-    kpi('Interviews completed', fmt(totCompleted), depts.length + ' departments') +
+    kpi('Interviews completed', fmt(totCompleted), 'by ' + fmt(totActive) + ' active interviewers') +
     kpi('Interviews declined by interviewers', orgRate + '%', fmt(totDeclines) + ' of ' + fmt(totCompleted) + ' interviews were declined') +
     kpi('Interview scheduling changes', fmt(totChanges), 'across all departments') +
-    kpi('Active interviewers', fmt(totActive), 'org-wide') +
+    aiKpi +
     '</div>';
 
   // ── Ranked department table ──
@@ -452,13 +484,13 @@ function renderAllDepartments() {
   const kpiWatch = '<div style="display:grid;grid-template-columns:0.9fr 1.1fr;gap:16px;margin-bottom:4px">' +
     '<div>' + kpiStrip.replace('grid-template-columns:repeat(4,1fr)', 'grid-template-columns:repeat(2,1fr)').replace(/margin-bottom:28px/, 'margin-bottom:0') + '</div>' +
     '<div style="background:#fbfcfd;border:1px solid #dbe1ea;border-radius:10px;padding:14px">' +
-      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:10px">What needs attention</div>' +
+      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:10px">Interviewer health \u2014 watch areas</div>' +
       '<div style="display:flex;flex-direction:column;gap:8px">' + watchHtml + '</div>' +
     '</div>' +
     '</div>';
   // Skills-by-role + AI topic cards
-  const insightCards = '<div style="display:grid;grid-template-columns:' + (aiCard ? '1.15fr 0.85fr' : '1fr') + ';gap:16px;margin-top:16px">' +
-    skillsCard + aiCard + '</div>';
+  const insightCards = '<div style="display:grid;grid-template-columns:' + (coachingCard ? '1fr 1fr' : '1fr') + ';gap:16px;margin-top:16px">' +
+    skillsCard + coachingCard + '</div>';
   const headerBlock = '<section class="section-shell" data-section="Quarter at a glance">' +
       '<div class="section-shell-header" style="display:flex;justify-content:space-between;align-items:center">' +
         '<div>' +
