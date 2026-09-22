@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -273,20 +274,213 @@ function init() {
   });
   const sel = document.getElementById('dept-select');
   sel.innerHTML = '';
+  const allOpt = document.createElement('option');
+  allOpt.value = allOpt.textContent = 'All Departments';
+  sel.appendChild(allOpt);
   (D.departments || []).forEach(dept => {
     const o = document.createElement('option');
     o.value = o.textContent = dept;
     sel.appendChild(o);
   });
-  if (D.departments && D.departments.length) selectDept(D.departments[0]);
+  selectDept('All Departments');
 }
 function selectDept(dept) {
   currentDept = dept;
   document.getElementById('dept-select').value = dept;
+  if (dept === 'All Departments') {
+    renderAllDepartments();
+    return;
+  }
   const data = (D.data || {})[dept] || {};
   renderOverview(data);
   renderEngagement(data);
   renderMetrics(data);
+}
+// ════════════════════════════════════════════════════════════════
+// ALL DEPARTMENTS — org-wide rollup (Summary tab only)
+// KPI strip (big cards) + ranked department table. Engagement and
+// Metrics tabs show a pointer note, since per-person signals don't
+// pool meaningfully across the whole org.
+// ════════════════════════════════════════════════════════════════
+function renderAllDepartments() {
+  const depts = D.departments || [];
+  // Per-dept rows use the report's OWN canonical functions and stored stats,
+  // so every row equals that department's own page exactly.
+  let totCompleted = 0, totDeclines = 0, totChanges = 0, totActive = 0;
+  const rows = depts.map(name => {
+    const dd = (D.data || {})[name] || {};
+    const s = dd.stats || {};
+    const coord = dd.coordination || {};
+    const completed = interviewsCompleted(dd);
+    const declines = s.total_declines || 0;
+    const rate = s.decline_rate_pct != null ? s.decline_rate_pct : 0;
+    const changes = coord.interview_changes || 0;
+    const active = s.active_interviewers || 0;
+    totCompleted += completed;
+    totDeclines += declines;
+    totChanges += changes;
+    totActive += active;
+    return { name, completed, declines, rate, changes, active };
+  }).sort((a, b) => b.completed - a.completed);
+  // Org decline rate = weighted (total declines / total completed), not an average of rates.
+  const orgRate = totCompleted ? Math.round(totDeclines / totCompleted * 1000) / 10 : 0;
+
+  // ══ WHAT NEEDS ATTENTION — relative outliers (top/bottom vs. other depts) ══
+  // Only consider departments with enough volume to be meaningful (>=30 interviews),
+  // so tiny teams don't dominate the flags on noise.
+  const MIN_VOL = 30;
+  const meaningful = rows.filter(r => r.completed >= MIN_VOL);
+  const scLatePct = dd => {
+    const ppl = (dd.scorecards && dd.scorecards.all_people || []).filter(p => (p.avg_hrs || 0) > 0);
+    if (!ppl.length) return null;
+    return Math.round(ppl.filter(p => p.avg_hrs >= 72).length / ppl.length * 100);
+  };
+  const watch = [];
+  // Highest decline rate
+  const byDecline = meaningful.slice().sort((a, b) => b.rate - a.rate);
+  if (byDecline[0] && byDecline[0].rate > 0)
+    watch.push({ tone: 'bad', dept: byDecline[0].name, text: 'decline rate is the highest in the org at ' + byDecline[0].rate + '%' });
+  // Heaviest coordination load (changes)
+  const byChanges = meaningful.slice().sort((a, b) => b.changes - a.changes);
+  if (byChanges[0] && byChanges[0].changes > 0)
+    watch.push({ tone: 'bad', dept: byChanges[0].name, text: 'carries the heaviest coordination load — ' + fmt(byChanges[0].changes) + ' interview changes' });
+  // Worst scorecard SLA
+  let worstSla = null;
+  meaningful.forEach(r => { const p = scLatePct(D.data[r.name]); if (p != null && (!worstSla || p > worstSla.p)) worstSla = { name: r.name, p }; });
+  if (worstSla && worstSla.p >= 30)
+    watch.push({ tone: 'warn', dept: worstSla.name, text: worstSla.p + '% of scorecards came in late — slipping on the 3-day SLA' });
+  // Positive: lowest decline rate among higher-volume depts
+  const cleanest = byDecline.slice().reverse()[0];
+  if (cleanest && cleanest.rate === 0)
+    watch.push({ tone: 'good', dept: cleanest.name, text: 'clean quarter — no declines recorded despite real volume' });
+  const watchIcon = t => t === 'bad' ? '<span style="color:#A32D2D;flex-shrink:0;margin-top:1px">\u2191</span>'
+    : t === 'warn' ? '<span style="color:#854F0B;flex-shrink:0;margin-top:1px">!</span>'
+    : '<span style="color:#0F6E56;flex-shrink:0;margin-top:1px">\u2713</span>';
+  const watchColor = t => t === 'bad' ? '#501313' : t === 'warn' ? '#412402' : '#04342C';
+  const watchHtml = watch.length
+    ? watch.map(w => '<div style="display:flex;gap:9px;align-items:flex-start">' + watchIcon(w.tone) +
+        '<span style="font-size:12.5px;line-height:1.45;color:' + watchColor(w.tone) + '"><b style="font-weight:700">' + w.dept + '</b> \u2014 ' + w.text + '</span></div>').join('')
+    : '<div style="font-size:12.5px;color:var(--text-secondary);font-style:italic">Nothing crossing the outlier lines this period.</div>';
+
+  // ══ SKILL COVERAGE BY ROLE (org-wide, drilled to role level) ══
+  const roleRows = [];
+  depts.forEach(name => {
+    (D.data[name].bh_skills || []).forEach(r => {
+      const sk = r.skills || [];
+      if (!sk.length) return;
+      const avg = Math.round(sk.reduce((s, x) => s + x.pct, 0) / sk.length);
+      roleRows.push({ role: r.role, dept: name, avg });
+    });
+  });
+  roleRows.sort((a, b) => b.avg - a.avg);
+  const best = roleRows.slice(0, 3);
+  const worst = roleRows.slice(-3).reverse();
+  const roleLine = (r, color) =>
+    '<div style="display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:0.5px solid var(--border);font-size:12.5px">' +
+    '<span>' + r.role + ' <span style="color:var(--text-muted)">\u00b7 ' + r.dept + '</span></span>' +
+    '<span style="color:' + color + ';font-weight:700">' + r.avg + '%</span></div>';
+  const skillsCard = '<div style="background:#fbfcfd;border:1px solid #dbe1ea;border-radius:10px;padding:14px">' +
+    '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:3px">Skill coverage \u00b7 by role</div>' +
+    '<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">How consistently JD skills are assessed, per role (' + roleRows.length + ' roles)</div>' +
+    '<div style="font-size:11px;color:#0F6E56;font-weight:700;margin-bottom:5px">Best covered</div>' +
+    best.map(r => roleLine(r, '#0F6E56')).join('') +
+    '<div style="font-size:11px;color:#A32D2D;font-weight:700;margin:12px 0 5px">Weakest 3 \u2014 roles we\u2019re not covering well</div>' +
+    worst.map(r => roleLine(r, '#A32D2D')).join('') +
+    '</div>';
+
+  // ══ AI TOPIC (grouped — honest label) ══
+  // Aggregates multiple AI-named skills into one topic %. Not a single BrightHire field.
+  const AI_MATCH = n => /\bAI\b/.test(n) || /machine learning/i.test(n) || /\bML\b/.test(n);
+  let aiPcts = [], aiRoleSet = new Set(), aiDeptSet = new Set();
+  depts.forEach(name => {
+    (D.data[name].bh_skills || []).forEach(r => {
+      (r.skills || []).forEach(sk => {
+        if (AI_MATCH(sk.name)) { aiPcts.push(sk.pct); aiRoleSet.add(r.role); aiDeptSet.add(name); }
+      });
+    });
+  });
+  const aiAvg = aiPcts.length ? Math.round(aiPcts.reduce((s, x) => s + x, 0) / aiPcts.length) : null;
+  const aiCard = aiAvg != null
+    ? '<div style="background:#fbfcfd;border:1px solid #dbe1ea;border-radius:10px;padding:14px">' +
+      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:10px">Topic focus \u00b7 AI</div>' +
+      '<div style="font-size:30px;font-weight:700;color:#3C3489;line-height:1">' + aiAvg + '%</div>' +
+      '<div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin:6px 0 10px">average coverage of AI-related skills across ' + aiRoleSet.size + ' roles in ' + aiDeptSet.size + ' departments</div>' +
+      '<div style="font-size:10.5px;color:var(--text-muted);border-top:0.5px solid var(--border);padding-top:8px;font-style:italic">Grouped across ' + aiPcts.length + ' AI-named skills (e.g. AI Utilization, AI Tools, Machine Learning) \u2014 not a single BrightHire metric.</div>' +
+      '</div>'
+    : '';
+
+  // ── KPI strip (big Option-A style cards) ──
+  const kpi = (label, value, sub) =>
+    '<div class="stat-card"><div class="stat-label">' + label + '</div>' +
+    '<div class="stat-value">' + value + '</div>' +
+    '<div style="font-size:12px;color:var(--text-secondary)">' + sub + '</div></div>';
+  const kpiStrip = '<div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">' +
+    kpi('Interviews completed', fmt(totCompleted), depts.length + ' departments') +
+    kpi('Org decline rate', orgRate + '%', fmt(totDeclines) + ' declines') +
+    kpi('Interview changes', fmt(totChanges), 'across all departments') +
+    kpi('Active interviewers', fmt(totActive), 'org-wide') +
+    '</div>';
+
+  // ── Ranked department table ──
+  const amber = v => v >= 15 ? 'color:#b45309;font-weight:700' : '';
+  const tbody = rows.map(r =>
+    '<tr style="cursor:pointer" onclick="selectDept(\'' + r.name.replace(/'/g, "\\'") + '\')">' +
+      '<td style="font-weight:500">' + r.name + '</td>' +
+      '<td style="text-align:right">' + fmt(r.completed) + '</td>' +
+      '<td style="text-align:right">' + fmt(r.declines) + '</td>' +
+      '<td style="text-align:right;' + amber(r.rate) + '">' + r.rate + '%</td>' +
+      '<td style="text-align:right">' + fmt(r.changes) + '</td>' +
+      '<td style="text-align:right;color:var(--lawn);font-weight:700">→</td>' +
+    '</tr>').join('');
+  const table = '<div class="table-wrap" style="margin-bottom:0"><table class="data-table" style="width:100%"><thead><tr>' +
+    '<th>Department</th>' +
+    '<th style="text-align:right">Completed</th>' +
+    '<th style="text-align:right">Declines</th>' +
+    '<th style="text-align:right">Decline rate</th>' +
+    '<th style="text-align:right">Changes</th>' +
+    '<th style="text-align:right"></th>' +
+    '</tr></thead><tbody>' + tbody + '</tbody></table></div>';
+  const tableSection = sectionShell('Departments ranked by volume',
+    table,
+    'Every department this period, highest interview volume first. Figures match each department\u2019s own page \u2014 click any row to open it. Decline rate is flagged when it reaches 15%.');
+
+  // ── Assemble Summary ──
+  const hero = '<div style="text-align:right;flex-shrink:0;padding-left:20px">' +
+      '<div style="font-size:30px;font-weight:700;line-height:1;color:var(--dusk)">' + fmt(totCompleted) + '</div>' +
+      '<div style="font-size:11px;color:var(--text-secondary);margin-top:3px">interviews completed org-wide</div>' +
+    '</div>';
+  // KPIs (left) + watch list (right), side by side
+  const kpiWatch = '<div style="display:grid;grid-template-columns:0.9fr 1.1fr;gap:16px;margin-bottom:4px">' +
+    '<div>' + kpiStrip.replace('grid-template-columns:repeat(4,1fr)', 'grid-template-columns:repeat(2,1fr)').replace(/margin-bottom:28px/, 'margin-bottom:0') + '</div>' +
+    '<div style="background:#fbfcfd;border:1px solid #dbe1ea;border-radius:10px;padding:14px">' +
+      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:10px">What needs attention</div>' +
+      '<div style="display:flex;flex-direction:column;gap:8px">' + watchHtml + '</div>' +
+    '</div>' +
+    '</div>';
+  // Skills-by-role + AI topic cards
+  const insightCards = '<div style="display:grid;grid-template-columns:' + (aiCard ? '1.15fr 0.85fr' : '1fr') + ';gap:16px;margin-top:16px">' +
+    skillsCard + aiCard + '</div>';
+  const headerBlock = '<section class="section-shell" data-section="Quarter at a glance">' +
+      '<div class="section-shell-header" style="display:flex;justify-content:space-between;align-items:center">' +
+        '<div>' +
+          '<div class="section-shell-title">All departments \u00b7 ' + (D.meta.quarter || '') + '</div>' +
+          '<div class="section-shell-subtitle">The top things to look at, then the full breakdown below. Pick a department above to drill into detail.</div>' +
+        '</div>' + hero +
+      '</div>' +
+      '<div class="section-shell-body">' + kpiWatch + insightCards + '</div>' +
+    '</section>';
+  document.getElementById('tab-overview').innerHTML =
+    headerBlock + tableSection +
+    '<div class="timestamp">Generated ' + D.meta.generated_date + ' \u00b7 Source: ModernLoop + BrightHire + Greenhouse \u00b7 Phase 1 quick snapshots</div>';
+
+  // Engagement + Metrics tabs: pointer note (per-person signals don't pool org-wide).
+  const note = (label) => '<div class="section-shell" data-section="All departments">' +
+    '<div class="section-shell-body" style="padding:40px 22px;text-align:center;color:var(--text-secondary)">' +
+    '<div style="font-size:14px;font-weight:600;color:var(--dusk);margin-bottom:6px">' + label + ' is per department</div>' +
+    '<div style="font-size:13px;max-width:520px;margin:0 auto;line-height:1.6">These interviewer-level signals are most meaningful within a single team. Pick a department from the dropdown above to see its ' + label.toLowerCase() + ' detail.</div>' +
+    '</div></div>';
+  document.getElementById('tab-engagement').innerHTML = note('Interviewer engagement');
+  document.getElementById('tab-metrics').innerHTML = note('Interview metrics');
 }
 function showTab(id, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -344,6 +538,29 @@ function sectionShell(title, body, subtitle) {
     '</div>' +
     '<div class="section-shell-body">' + body + '</div>' +
     '</section>';
+}
+// Collapsible variant — same shell styling, but the header is a toggle and the
+// body starts collapsed. Used for sections under review (e.g. Roles this period)
+// so they can be demoted without removing them.
+function sectionShellCollapsible(title, body, subtitle, startOpen) {
+  const open = !!startOpen;
+  return '<section class="section-shell" data-section="' + title + '">' +
+    '<div class="section-shell-header" style="cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:12px" onclick="toggleSectionShell(this)">' +
+    '<div>' +
+    '<div class="section-shell-title">' + title + '</div>' +
+    (subtitle ? '<div class="section-shell-subtitle">' + subtitle + '</div>' : '') +
+    '</div>' +
+    '<span class="ss-arrow" style="font-size:13px;color:var(--text-secondary);flex-shrink:0;margin-top:2px">' + (open ? '\u25BE' : '\u25B8') + '</span>' +
+    '</div>' +
+    '<div class="section-shell-body" style="display:' + (open ? 'block' : 'none') + '">' + body + '</div>' +
+    '</section>';
+}
+function toggleSectionShell(hdr) {
+  const body = hdr.parentElement.querySelector('.section-shell-body');
+  const arrow = hdr.querySelector('.ss-arrow');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  if (arrow) arrow.textContent = isOpen ? '\u25B8' : '\u25BE';
 }
 function obsActHtml(obs, rec) {
   obs = obs || []; rec = rec || [];
@@ -654,6 +871,22 @@ function toggleLevelPanel(hdr) {
   body.style.display = open ? 'none' : 'block';
   if (arrow) arrow.textContent = open ? '▸' : '▾';
 }
+function toggleLevelNames(rid) {
+  const det = document.getElementById('det-' + rid);
+  const arw = document.getElementById('arw-' + rid);
+  if (!det) return;
+  const open = det.style.display !== 'none';
+  det.style.display = open ? 'none' : 'table-row';
+  if (arw) arw.textContent = open ? '\u25B8' : '\u25BE';
+}
+function toggleKpiNames(id) {
+  const box = document.getElementById(id);
+  const arw = document.getElementById('arw-' + id);
+  if (!box) return;
+  const open = box.style.display !== 'none';
+  box.style.display = open ? 'none' : 'block';
+  if (arw) arw.textContent = open ? '\u25B8' : '\u25BE';
+}
 function showSkillsRole(groupId, roleId) {
   const group = document.getElementById(groupId);
   if (!group) return;
@@ -748,7 +981,30 @@ function renderOverview(data) {
     '</div>';
   // ── 2. Roles this period ────────────────────────────────────
   let rolesHtml = '';
-  const openings = data.job_openings || [];
+  const rawOpenings = data.job_openings || [];
+  // Collapse TRUE duplicates only: rows sharing the same opening_id AND the same job title.
+  // Rows without an opening_id are always kept (can't safely match them). Different titles
+  // under one ID are kept separate. Survivor per group = most informative: Hired > Open >
+  // most recent open_date — so a filled req shows its outcome rather than an earlier snapshot.
+  const dedupeOpenings = (list) => {
+    const groups = new Map();
+    const passthrough = [];
+    list.forEach(o => {
+      if (!o.opening_id) { passthrough.push(o); return; }
+      const key = o.opening_id + '||' + (o.job || '');
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(o);
+    });
+    const rank = o => o.status === 'Hired' ? 0 : o.status === 'Open' ? 1 : 2;
+    const parseD = s => { const t = Date.parse(s || ''); return isNaN(t) ? 0 : t; };
+    const survivors = [];
+    groups.forEach(group => {
+      group.sort((a, b) => (rank(a) - rank(b)) || (parseD(b.open_date) - parseD(a.open_date)));
+      survivors.push(group[0]);
+    });
+    return passthrough.concat(survivors);
+  };
+  const openings = dedupeOpenings(rawOpenings);
   if (openings.length) {
     const statusBadge = o => {
       if (o.status === 'Open')  return '<span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;background:#dbeafe;color:#1e40af">Open</span>';
@@ -824,7 +1080,7 @@ function renderOverview(data) {
     } else {
       rolesBody = buildRolesTable(nonCampus);
     }
-    rolesHtml = sectionShell('Roles this period', rolesBody, 'All Greenhouse openings active during ' + (D.meta.period || 'this period') + '.');
+    rolesHtml = sectionShellCollapsible('Roles this period', rolesBody, 'All Greenhouse openings active during ' + (D.meta.period || 'this period') + '. Click to expand.', false);
   }
   // ── 3. Quarter at a Glance ───────────────────────────────────
   // Status badge helper
@@ -1131,11 +1387,22 @@ function loadBalanceSection(data) {
     concTone = top20pct > 50 ? 'amber' : '';
     concDot  = '';
     concNote = 'of all interviews this period';
+    // ── Light-A: build inline name lists revealed from the two KPI cards ──
+    const shortTeamA = tm => (tm || '—').replace('Pillar - ', '').replace('Foundational Team - ', 'FT: ');
+    const untappedList = epUnused.slice().sort((a, b) => a.name.localeCompare(b.name)).map(p =>
+      '<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid #f3f4f6">' +
+      '<span>' + p.name + '</span><span style="color:var(--text-secondary);white-space:nowrap">' + (p.level || '—') + ' · ' + shortTeamA(p.team) + '</span></div>').join('');
+    const concList = top20.map(p =>
+      '<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid #f3f4f6">' +
+      '<span>' + p.name + '</span><span style="color:var(--text-secondary);white-space:nowrap">' + fmt(p.completed) + ' intv · ' + (p.level || '—') + '</span></div>').join('');
     // KPI strip
     lbBody += '<div class="kpi-grid" style="grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px">' +
       '<div class="kpi"><div class="label">Dept panel size</div>' +
         '<div class="metric-big">' + engPanel.length + '</div>' +
-        '<div class="metric-sub">' + epUnused.length + ' untapped · <span style="color:' + (utilPct >= 70 ? '#1B8751' : '#d97706') + ';font-weight:700">' + utilPct + '%</span> utilized</div></div>' +
+        '<div class="metric-sub">' + epUnused.length + ' untapped · <span style="color:' + (utilPct >= 70 ? '#1B8751' : '#d97706') + ';font-weight:700">' + utilPct + '%</span> utilized</div>' +
+        (epUnused.length ? '<div onclick="toggleKpiNames(\'kpi-untapped\')" style="margin-top:8px;font-size:11px;color:var(--lawn);font-weight:700;cursor:pointer;user-select:none"><span id="arw-kpi-untapped">\u25B8</span> see ' + epUnused.length + ' untapped names</div>' +
+          '<div id="kpi-untapped" style="display:none;margin-top:8px;font-size:12px;max-height:220px;overflow-y:auto">' + untappedList + '</div>' : '') +
+      '</div>' +
       '<div class="kpi"><div class="label">Load concentration</div>' +
         '<div style="display:flex;align-items:baseline;gap:6px;margin:2px 0 8px">' +
           '<span class="metric-big' + (concTone ? ' ' + concTone : '') + '" style="margin:0">' + top20pct + '%</span>' +
@@ -1145,16 +1412,20 @@ function loadBalanceSection(data) {
           '<div style="width:' + top20pct + '%;background:' + (concTone === 'amber' ? '#d97706' : 'var(--lawn)') + '"></div>' +
           '<div style="width:' + (100 - top20pct) + '%;background:#e5e7eb"></div>' +
         '</div>' +
-        '<div class="metric-sub">top ' + top20n + ' of ' + epActive.length + ' active interviewers conducted ' + top20pct + '% ' + concNote + '</div></div>' +
+        '<div class="metric-sub">top ' + top20n + ' of ' + epActive.length + ' active interviewers conducted ' + top20pct + '% ' + concNote + '</div>' +
+        (top20.length ? '<div onclick="toggleKpiNames(\'kpi-conc\')" style="margin-top:8px;font-size:11px;color:var(--lawn);font-weight:700;cursor:pointer;user-select:none"><span id="arw-kpi-conc">\u25B8</span> see the top ' + top20n + '</div>' +
+          '<div id="kpi-conc" style="display:none;margin-top:8px;font-size:12px;max-height:220px;overflow-y:auto">' + concList + '</div>' : '') +
+      '</div>' +
       '</div>';
     // Row 2: load by level (IC1..IC7, M3..M7)
     const levelMap = {};
     engPanel.forEach(i => {
       const lv = i.level || 'Unspecified';
-      if (!levelMap[lv]) levelMap[lv] = { total: 0, active: 0, completed: 0 };
+      if (!levelMap[lv]) levelMap[lv] = { total: 0, active: 0, completed: 0, people: [] };
       levelMap[lv].total++;
       levelMap[lv].completed += (i.completed || 0);
       if ((i.completed || 0) > 0) levelMap[lv].active++;
+      levelMap[lv].people.push(i);
     });
     // Sort: IC levels by number, then M levels by number, anything else last.
     const levelRank = lv => {
@@ -1177,14 +1448,40 @@ function loadBalanceSection(data) {
       rows.forEach(([lv, d]) => {
         const util = d.total ? Math.round(d.active / d.total * 100) : 0;
         const idle = d.total - d.active;
-        t += '<tr>' +
-          '<td style="font-weight:600;padding:3px 10px">' + lv + '</td>' +
+        const rid = 'lvl-' + (currentDept || 'd').replace(/[^a-zA-Z0-9]/g, '') + '-' + lv.replace(/[^a-zA-Z0-9]/g, '');
+        const shortTeam = tm => (tm || '—').replace('Pillar - ', '').replace('Foundational Team - ', 'FT: ');
+        const ppl = d.people || [];
+        const activePpl = ppl.filter(p => (p.completed || 0) > 0).sort((a, b) => (b.completed || 0) - (a.completed || 0));
+        const untappedPpl = ppl.filter(p => (p.completed || 0) === 0).sort((a, b) => a.name.localeCompare(b.name));
+        // Clickable summary row
+        t += '<tr onclick="toggleLevelNames(\'' + rid + '\')" style="cursor:pointer">' +
+          '<td style="font-weight:600;padding:3px 10px"><span id="arw-' + rid + '" style="display:inline-block;width:11px;color:var(--text-secondary)">\u25B8</span> ' + lv + '</td>' +
           '<td style="text-align:right;padding:3px 6px">' + d.total + '</td>' +
           '<td style="text-align:right;padding:3px 6px">' + d.active + '</td>' +
           '<td style="text-align:right;padding:3px 6px;color:' + (idle > 5 ? '#b45309' : 'var(--text-secondary)') + '">' + idle + '</td>' +
           '<td style="text-align:right;padding:3px 6px;white-space:nowrap"><span style="color:' + utilDot(util) + '">\u25CF</span> ' + util + '%</td>' +
           '<td style="text-align:right;padding:3px 10px">' + fmt(d.completed) + '</td>' +
           '</tr>';
+        // Hidden detail row with names
+        let detail = '';
+        if (activePpl.length) {
+          detail += '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin:2px 0 4px">Active · by volume</div>';
+          detail += activePpl.map(p =>
+            '<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid #f3f4f6">' +
+            '<span>' + p.name + '</span>' +
+            '<span style="color:var(--text-secondary);white-space:nowrap">' + fmt(p.completed) + ' intv · ' + shortTeam(p.team) + '</span></div>'
+          ).join('');
+        }
+        if (untappedPpl.length) {
+          detail += '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#b45309;margin:10px 0 4px">Untapped · ' + untappedPpl.length + '</div>';
+          detail += untappedPpl.map(p =>
+            '<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid #f3f4f6">' +
+            '<span>' + p.name + '</span>' +
+            '<span style="color:var(--text-secondary);white-space:nowrap">' + shortTeam(p.team) + '</span></div>'
+          ).join('');
+        }
+        if (!detail) detail = '<div style="color:var(--text-secondary);font-style:italic;padding:4px 0">No people at this level.</div>';
+        t += '<tr id="det-' + rid + '" style="display:none"><td colspan="6" style="padding:6px 10px 12px;background:#fafbfc">' + detail + '</td></tr>';
       });
       return t + '</tbody></table>';
     };
