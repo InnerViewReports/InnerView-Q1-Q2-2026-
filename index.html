@@ -211,6 +211,230 @@ table th{font-weight:600!important}table td{font-weight:400!important}
 .roles-grp-other .sc-arrow{color:#5a3b00!important}
 /* Placeholder note */
 .placeholder-note{color:#6b7280;font-size:13px;font-style:italic;padding:4px 0}
+
+/* ════════════════════════════════════════════════════════════════
+   DASHBOARD HUB THEME — whole-report visual lift (override layer)
+   Applies to every department page and all three tabs via shared classes.
+   ════════════════════════════════════════════════════════════════ */
+body{background:linear-gradient(180deg,#e8ecf3 0%,#eef1f5 100%)!important;background-attachment:fixed!important}
+
+/* Header — deeper chrome, subtle gradient, refined */
+.header{background:linear-gradient(120deg,#232F46 0%,#2b3a56 100%)!important;box-shadow:0 4px 20px rgba(35,47,70,.28)!important;border-bottom:1px solid rgba(255,255,255,.06)!important}
+.logo-dot{box-shadow:0 0 0 0 rgba(27,135,81,.6);animation:hubPulse 2.6s ease-out infinite}
+@keyframes hubPulse{0%{box-shadow:0 0 0 0 rgba(27,135,81,.5)}70%{box-shadow:0 0 0 7px rgba(27,135,81,0)}100%{box-shadow:0 0 0 0 rgba(27,135,81,0)}}
+
+/* Tab nav — becomes a rail attached to the header chrome */
+.tab-nav{background:#2c3a54!important;border-bottom:none!important;box-shadow:0 2px 10px rgba(35,47,70,.15)!important;padding:0 32px!important}
+.tab-btn{color:#8a97b5!important}
+.tab-btn:hover{color:#dfe6f2!important}
+.tab-btn.active{color:#fff!important;border-bottom-color:#3ec99a!important}
+
+/* Page canvas */
+.page{max-width:1240px!important}
+
+/* Elevated cards — directional shadow, rounder, hover lift */
+.stat-card,.section-card,.kpi,.status-card,.bh-card,.callout-card,.recaction-card,.sla-panel,.section-shell{
+  border-radius:16px!important;
+  border:0.5px solid #e3e8f0!important;
+  box-shadow:0 2px 4px rgba(35,47,70,.05),0 12px 26px -8px rgba(35,47,70,.13)!important;
+  transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s ease!important;
+}
+.stat-card:hover,.section-shell:hover{
+  transform:translateY(-2px)!important;
+  box-shadow:0 4px 8px rgba(35,47,70,.07),0 18px 38px -10px rgba(35,47,70,.2)!important;
+}
+/* Section shells keep their colored left spine but gain the lift */
+.section-shell{overflow:hidden!important}
+.section-shell-header{background:linear-gradient(180deg,#ffffff,#fbfcfe)!important}
+
+/* KPI stat cards — top accent + inset panel feel */
+.stat-card{background:#fff!important;position:relative!important}
+
+/* Tables inside cards read as inset panels */
+.section-shell .table-wrap,.section-shell .sc-table-wrap{border-radius:12px!important;border:0.5px solid #e3e8f0!important;background:#f9fafc!important}
+
+/* Section fade-in on render */
+.tab-panel.active > .section-shell,.tab-panel.active > section{animation:hubFade .5s ease both}
+.tab-panel.active > .section-shell:nth-child(1){animation-delay:.02s}
+.tab-panel.active > .section-shell:nth-child(2){animation-delay:.08s}
+.tab-panel.active > .section-shell:nth-child(3){animation-delay:.14s}
+.tab-panel.active > .section-shell:nth-child(4){animation-delay:.20s}
+.tab-panel.active > .section-shell:nth-child(5){animation-delay:.26s}
+@keyframes hubFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Bars animate width on load (coaching/skills/concentration) */
+@keyframes hubBar{from{width:0!important}}
+
+/* Reduce motion for accessibility */
+@media(prefers-reduced-motion:reduce){
+  .logo-dot,.tab-panel.active > .section-shell,.tab-panel.active > section{animation:none!important}
+  .stat-card,.section-shell{transition:none!important}
+}
+
+/* ── Hub KPI tiles: icon chips ── */
+.hub-tile{position:relative!important}
+.hub-chip{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;margin-bottom:11px;line-height:1}
+/* AI glow tile — gradient block that pops forward */
+.hub-tile-ai{background:linear-gradient(155deg,#3c3489 0%,#534ab7 100%)!important;border:0.5px solid #4a42a3!important;overflow:hidden!important;box-shadow:0 2px 4px rgba(60,52,137,.22),0 14px 30px -8px rgba(60,52,137,.45)!important}
+.hub-tile-ai:hover{box-shadow:0 4px 10px rgba(60,52,137,.3),0 22px 46px -10px rgba(60,52,137,.6)!important}
+.hub-tile-ai .stat-value{color:#fff!important}
+.hub-tile-ai-glow{position:absolute;top:-34px;right:-34px;width:110px;height:110px;background:radial-gradient(circle,rgba(207,203,246,.45),transparent 68%);border-radius:50%;pointer-events:none}
+/* Light indigo glow tile (Interviews completed) */
+.hub-tile-indigo{background:linear-gradient(160deg,#f2f1fb 0%,#e6e4f6 100%)!important;border:0.5px solid #cfcbec!important;overflow:hidden!important;box-shadow:0 2px 4px rgba(90,79,196,.08),0 12px 26px -8px rgba(90,79,196,.2)!important}
+.hub-tile-indigo:hover{box-shadow:0 4px 8px rgba(90,79,196,.12),0 18px 38px -10px rgba(90,79,196,.28)!important}
+.hub-tile-indigo-glow{position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:radial-gradient(circle,rgba(124,113,221,.28),transparent 70%);border-radius:50%;pointer-events:none}
+.hub-tile-indigo .hub-chip{box-shadow:0 1px 3px rgba(90,79,196,.2)}
+
+/* ── Accent spine bars on section-shell titles (colored vertical tick) ── */
+.section-shell .section-shell-title{display:flex;align-items:center;gap:9px}
+.section-shell .section-shell-title::after{content:"";display:none}
+.section-shell-title{position:relative}
+.section-shell .section-shell-header{position:relative}
+.section-shell .section-shell-header::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:5px;border-radius:0 3px 3px 0;background:var(--lawn)}
+.section-shell[data-section*="health"] .section-shell-header::before,
+.section-shell[data-section*="watch"] .section-shell-header::before{background:#d85a30}
+.section-shell[data-section*="rigor"] .section-shell-header::before,
+.section-shell[data-section*="quality"] .section-shell-header::before,
+.section-shell[data-section*="skill"] .section-shell-header::before{background:#85AFCC}
+.section-shell[data-section*="Coaching"] .section-shell-header::before,
+.section-shell[data-section*="coaching"] .section-shell-header::before{background:#BA6029}
+.section-shell[data-section*="Scorecard"] .section-shell-header::before{background:#974859}
+.section-shell[data-section*="Roles"] .section-shell-header::before{background:#232F46}
+.section-shell[data-section*="Coordination"] .section-shell-header::before{background:#BA6029}
+.section-shell[data-section*="decline"] .section-shell-header::before{background:#974859}
+.section-shell .section-shell-header{padding-left:26px!important}
+
+/* ════════════════════════════════════════════════════════════════
+   FULL RE-THEME — deep section-body styling (reaches inside every render fn
+   via shared inner classes: tables, mini-panels, bars, chips, accordions)
+   ════════════════════════════════════════════════════════════════ */
+
+/* Data tables → soft inset panels with rounded rows */
+.section-shell .table-wrap,.section-shell .sc-table-wrap,.section-shell .sc-accordion{
+  border-radius:12px!important;border:0.5px solid #e3e8f0!important;background:#fafbfd!important;
+  box-shadow:inset 0 1px 2px rgba(35,47,70,.03)!important;overflow:hidden!important;
+}
+.section-shell table thead th,.section-shell .sc-table thead th{
+  background:#f2f5f9!important;color:#5a6a85!important;font-size:10.5px!important;
+  letter-spacing:.5px!important;border-bottom:1px solid #e3e8f0!important;
+}
+.section-shell table tbody td{border-bottom:1px solid #eef2f7!important}
+.section-shell table tbody tr:hover td{background:#f4f8fc!important}
+.section-shell table tbody tr:last-child td{border-bottom:none!important}
+
+/* Inline mini-stat panels (load balance KPIs, decline mini-cards, etc.) */
+.section-shell .kpi{background:linear-gradient(160deg,#fbfcfe,#f5f8fc)!important;border:0.5px solid #e3e8f0!important;border-radius:13px!important;box-shadow:0 1px 3px rgba(35,47,70,.04)!important}
+
+/* Progress bars — rounded, subtle gradient, animate in */
+.section-shell .role-rate-track,.section-shell .bh-track,.section-shell [style*="background:#eef1f5"],.section-shell [style*="background:#e5e7eb"]{border-radius:5px!important}
+.role-rate-fill-green,.bh-fill-green{background:linear-gradient(90deg,#1b8751,#3ec99a)!important;border-radius:5px!important}
+.role-rate-fill-amber,.bh-fill-amber{background:linear-gradient(90deg,#ba7517,#f6bf56)!important;border-radius:5px!important}
+.role-rate-fill-red,.bh-fill-red{background:linear-gradient(90deg,#974859,#cca5a3)!important;border-radius:5px!important}
+
+/* Score chips / pills — pill shape, slight depth */
+.score-chip,.iq-chip,.sla-pill,.reason-tag,.due-chip,.status-badge{border-radius:999px!important;box-shadow:0 1px 2px rgba(35,47,70,.06)!important;font-weight:700!important}
+
+/* Accordion groups (scorecard, roles) → cards */
+.section-shell .sc-group{border-radius:12px!important;border:0.5px solid #e3e8f0!important;box-shadow:0 1px 3px rgba(35,47,70,.05)!important;overflow:hidden!important;transition:box-shadow .18s ease}
+.section-shell .sc-group:hover{box-shadow:0 4px 12px rgba(35,47,70,.09)!important}
+.section-shell .sc-group-btn{background:linear-gradient(180deg,#ffffff,#fafbfd)!important}
+.section-shell .sc-group-btn:hover{background:#f4f8fc!important}
+
+/* BrightHire skill role tabs → pill toggle */
+.bh-role-tab{border-radius:999px!important;transition:all .15s ease}
+.bh-role-tab.active{background:var(--lawn)!important;box-shadow:0 2px 6px rgba(27,135,81,.3)!important}
+
+/* Callout / recommendation cards inside shells → soft tinted panels */
+.section-shell .callout-item{border-radius:9px!important}
+.section-shell .recaction-item{transition:background .15s ease}
+
+/* Level-panel collapsibles (load by level) → cards */
+.lp-body,[class*="lp-"]{border-radius:0 0 10px 10px!important}
+
+/* Empty-state polish */
+.empty-state{background:#fafbfd!important;border-radius:12px!important}
+
+/* ── Dark intelligence hero band (All Departments) ── */
+.all-dept-shell{overflow:hidden!important}
+.hero-band{position:relative;background:linear-gradient(120deg,#161d33 0%,#1c2542 55%,#241d4a 100%);padding:24px 26px 28px;overflow:hidden}
+.hero-band-glow{position:absolute;top:-80px;right:-40px;width:420px;height:320px;background:radial-gradient(ellipse,rgba(140,90,230,.28),transparent 65%);pointer-events:none}
+.hero-card{position:relative;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:20px 22px;overflow:hidden;backdrop-filter:blur(4px)}
+.hero-card-glow{position:absolute;top:-40px;right:-40px;width:140px;height:140px;background:radial-gradient(circle,rgba(90,120,220,.2),transparent 70%);border-radius:50%;pointer-events:none}
+.hero-band .stat-value{margin:0}
+.ai-gauge-ring{transition:stroke-dashoffset 1.1s cubic-bezier(.2,.7,.3,1)}
+
+/* ── Mid-tone signals body (All Departments middle band) — dimmed, not full dark ── */
+.dark-body{background:linear-gradient(180deg,#4d5573 0%,#5c6488 50%,#6b7396 100%);margin:0}
+.all-dept-shell{border:none!important}
+.dsig-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:18px;position:relative;overflow:hidden}
+.dsig-card.sig-positive{background:linear-gradient(135deg,rgba(60,150,110,.28),rgba(70,120,110,.16));border-color:rgba(120,220,180,.28)}
+.dsig-card.sig-attention{background:linear-gradient(135deg,rgba(150,95,60,.24),rgba(110,90,120,.16));border-color:rgba(230,150,120,.26)}
+/* Signal filter tabs */
+.sig-tab{border:none;background:none;color:#c2cae0;font-size:12px;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;transition:all .15s ease}
+.sig-tab.active{background:rgba(255,255,255,.18);color:#fff}
+.sig-tab:hover:not(.active){color:#fff}
+
+/* Attention-only mode: dim the non-attention parts, spotlight the focus parts */
+.attention-mode .att-dim{opacity:.32;filter:saturate(.5);transition:opacity .25s ease,filter .25s ease}
+.att-dim{transition:opacity .25s ease,filter .25s ease}
+.attention-mode .att-focus{background:rgba(224,133,122,.12);box-shadow:0 0 0 1px rgba(224,133,122,.35),0 6px 18px -6px rgba(224,133,122,.3);padding:12px;transition:all .25s ease}
+.att-focus{transition:all .25s ease;padding:0}
+/* When attention mode is on, fade the whole Positive Signals strip too */
+.attention-mode #sig-positive-zone{opacity:.32;filter:saturate(.5);transition:opacity .25s ease,filter .25s ease}
+#sig-positive-zone{transition:opacity .25s ease,filter .25s ease}
+/* Right column last card (coaching) grows to bottom-align with the taller left column */
+.att-col-right > *:last-child{flex:1 1 auto}
+.att-col-left > *:last-child{flex:1 1 auto}
+
+/* ── Living-system effects (restrained) ── */
+/* One-time scan shimmer across cards on load */
+@keyframes lsScanSweep{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
+.ls-scan{position:relative;overflow:hidden}
+.ls-scan::after{content:"";position:absolute;top:0;left:0;height:100%;width:35%;background:linear-gradient(90deg,transparent,rgba(159,178,232,.18),transparent);transform:translateX(-120%);pointer-events:none;z-index:2}
+.ls-scan.ls-run::after{animation:lsScanSweep 1.1s ease-out forwards}
+/* Cross-fade when content changes (department / filter switch) */
+@keyframes lsFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.ls-fade{animation:lsFadeIn .38s ease both}
+@media(prefers-reduced-motion:reduce){.ls-scan.ls-run::after{animation:none}.ls-fade{animation:none}}
+
+/* ── Card hover: subtle scale (option 3), applied consistently ── */
+.dsig-card,.hero-card,.ranked-band{transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s ease}
+.dsig-card:hover,.hero-card:hover{transform:scale(1.015);box-shadow:0 14px 34px -14px rgba(0,0,0,.5)}
+@media(prefers-reduced-motion:reduce){.dsig-card:hover,.hero-card:hover{transform:none}}
+
+/* ── Ranked departments band (matches the mid-tone signals area) ── */
+.ranked-band{background:linear-gradient(180deg,#6b7396 0%,#5c6488 100%);border-radius:16px;padding:22px 24px;margin-top:16px;box-shadow:0 10px 30px -12px rgba(35,47,70,.4)}
+.drow-head{display:flex;align-items:center;gap:14px;padding:0 14px 8px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:4px}
+.drow{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:10px;cursor:pointer;transition:background .15s ease}
+.drow:hover{background:rgba(255,255,255,.06)}
+.drow-caret{flex:0 0 auto;width:14px;color:#aab2ca;font-size:15px;transition:transform .15s ease;display:inline-block}
+.drow-caret.open{transform:rotate(90deg)}
+.drow-name{flex:0 0 auto;width:150px;font-size:13.5px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drow-track{flex:1;position:relative;height:10px;background:rgba(255,255,255,.12);border-radius:5px;display:flex;align-items:center}
+.drow-fill{height:10px;border-radius:5px;min-width:4px}
+.drow-ratepill{position:absolute;right:-2px;top:50%;transform:translate(100%,-50%);margin-left:8px;background:rgba(224,133,122,.2);color:#f0b0a8;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.drow-done{flex:0 0 auto;width:64px;text-align:right;font-size:15px;font-weight:700;color:#fff}
+.drow-detail{padding:2px 14px 16px 42px}
+.drow-stats{display:flex;gap:40px;padding:12px 0 4px}
+.drow-stat-l{font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#aab2ca;margin-bottom:3px}
+.drow-stat-v{font-size:17px;font-weight:700;color:#e7ebf5}
+.drow-alert{margin-top:10px;background:rgba(224,133,122,.14);border:1px solid rgba(224,133,122,.3);border-radius:9px;padding:10px 13px;font-size:12.5px;color:#f0d8d4;line-height:1.5}
+.drow-alert b{color:#fff}
+.drow-open{margin-top:12px;font-size:12px;font-weight:700;color:#7fe0b8;cursor:pointer;display:inline-block}
+.drow-open:hover{color:#a4ecca}
+.drow-more{border:1px dashed rgba(255,255,255,.2);margin-top:8px}
+.drow-showall{flex:0 0 auto;font-size:11px;font-weight:700;letter-spacing:.4px;color:#9fb2e8}
+
+/* ── Hover info badge (tooltip is rendered via JS, floated on body, so it never clips) ── */
+.hub-info{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:#c7cfdd;color:#fff;font-size:10px;font-weight:700;cursor:help;flex-shrink:0;font-style:normal;transition:background .15s ease;vertical-align:middle}
+.hub-info:hover,.hub-info:focus{background:#8a97b5;outline:none}
+.hub-info-light{background:rgba(255,255,255,.3);color:#fff}
+.hub-info-light:hover,.hub-info-light:focus{background:rgba(255,255,255,.55)}
+.hub-info-line{cursor:help}
+.hub-info-line:hover,.hub-info-line:focus{outline:none;background:#fbedd0}
+/* The floating tooltip element */
+#hub-tip{position:fixed;max-width:290px;background:#232F46;color:#eef2fb;font-size:12px;font-weight:400;line-height:1.55;letter-spacing:0;text-transform:none;padding:12px 14px;border-radius:10px;box-shadow:0 12px 34px -6px rgba(35,47,70,.5);opacity:0;pointer-events:none;transition:opacity .15s ease;z-index:9999;display:none}
+#hub-tip.show{opacity:1;display:block}
 </style>
 </head>
 <body>
@@ -228,7 +452,7 @@ table th{font-weight:600!important}table td{font-weight:400!important}
     <select class="dept-select" id="dept-select" onchange="selectDept(this.value)"><option>Loading…</option></select>
   </div>
 </header>
-<nav class="tab-nav">
+<nav class="tab-nav" id="tab-nav">
   <button class="tab-btn active" onclick="showTab('overview',this)">Summary</button>
   <button class="tab-btn" onclick="showTab('engagement',this)">Interviewer Engagement</button>
   <button class="tab-btn" onclick="showTab('metrics',this)">Interview Metrics</button>
@@ -247,6 +471,31 @@ function init() {
   document.getElementById('hdr-title').textContent = D.meta.title || 'The InnerView Report';
   document.getElementById('hdr-meta').textContent = [D.meta.quarter, D.meta.period].filter(Boolean).join(' · ');
   document.getElementById('footer').textContent = 'Generated ' + D.meta.generated_date + ' · The InnerView Report';
+  // ── Hub tooltip: single floating element on <body>, escapes card clipping, clamps to viewport ──
+  (function(){
+    let tip = document.getElementById('hub-tip');
+    if (!tip) { tip = document.createElement('div'); tip.id = 'hub-tip'; document.body.appendChild(tip); }
+    function show(el){
+      const txt = el.getAttribute('data-tip'); if (!txt) return;
+      tip.textContent = txt; tip.classList.add('show');
+      const r = el.getBoundingClientRect();
+      // measure
+      const tw = tip.offsetWidth, th = tip.offsetHeight, pad = 10;
+      // prefer below the badge; if not enough room, place above
+      let top = r.bottom + 9;
+      if (top + th > window.innerHeight - pad) top = r.top - th - 9;
+      // center horizontally on the badge, then clamp to viewport
+      let left = r.left + r.width/2 - tw/2;
+      left = Math.max(pad, Math.min(left, window.innerWidth - tw - pad));
+      tip.style.top = Math.max(pad, top) + 'px';
+      tip.style.left = left + 'px';
+    }
+    function hide(){ tip.classList.remove('show'); }
+    document.addEventListener('mouseover', function(e){ const el = e.target.closest('.hub-info,.hub-info-line'); if (el) show(el); });
+    document.addEventListener('mouseout', function(e){ if (e.target.closest('.hub-info,.hub-info-line')) hide(); });
+    document.addEventListener('focusin', function(e){ const el = e.target.closest && e.target.closest('.hub-info,.hub-info-line'); if (el) show(el); });
+    document.addEventListener('focusout', hide);
+  })();
   // Global floating tooltip for BrightHire column headers
   const tt = document.createElement('div');
   tt.id = 'bh-global-tooltip';
@@ -286,14 +535,72 @@ function init() {
 function selectDept(dept) {
   currentDept = dept;
   document.getElementById('dept-select').value = dept;
+  const nav = document.getElementById('tab-nav');
   if (dept === 'All Departments') {
+    // Home-page mode: no tabs, single scrolling Summary view.
+    if (nav) nav.style.display = 'none';
+    showTab('overview');
     renderAllDepartments();
+    animateVisuals();
     return;
   }
+  if (nav) nav.style.display = '';
   const data = (D.data || {})[dept] || {};
   renderOverview(data);
   renderEngagement(data);
   renderMetrics(data);
+  animateVisuals();
+}
+// Count-up numbers + grow-in bars on render (respects reduced-motion)
+function animateVisuals() {
+  // Cross-fade the active panel content on each render (department / filter switch)
+  var panel = document.querySelector('.tab-panel.active');
+  if (panel && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+    panel.classList.remove('ls-fade'); void panel.offsetWidth; panel.classList.add('ls-fade');
+  }
+  // One-time scan shimmer across the hero band + cards, only on first load of a view
+  requestAnimationFrame(function(){
+    document.querySelectorAll('.hero-band, .dsig-card, .ranked-band').forEach(function(el){
+      el.classList.add('ls-scan');
+      el.classList.remove('ls-run'); void el.offsetWidth; el.classList.add('ls-run');
+    });
+  });
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  requestAnimationFrame(function(){
+    // Count up any element tagged data-count
+    document.querySelectorAll('[data-count]').forEach(function(el){
+      var target = parseFloat(el.getAttribute('data-count'));
+      if (isNaN(target)) return;
+      var suffix = el.getAttribute('data-suffix') || '';
+      var decimals = (el.getAttribute('data-decimals')|0);
+      var dur = 900, start = performance.now();
+      function step(now){
+        var p = Math.min((now - start) / dur, 1);
+        var eased = 1 - Math.pow(1 - p, 3);
+        var val = target * eased;
+        el.textContent = (decimals ? val.toFixed(decimals) : Math.round(val).toLocaleString()) + suffix;
+        if (p < 1) requestAnimationFrame(step);
+        else el.textContent = (decimals ? target.toFixed(decimals) : Math.round(target).toLocaleString()) + suffix;
+      }
+      requestAnimationFrame(step);
+    });
+    // Grow bars tagged data-grow (width set from data-grow after a tick)
+    document.querySelectorAll('[data-grow]').forEach(function(el){
+      var w = el.getAttribute('data-grow');
+      el.style.transition = 'none'; el.style.width = '0%';
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){
+        el.style.transition = 'width 1s cubic-bezier(.2,.7,.3,1)';
+        el.style.width = w;
+      }); });
+    });
+    // Animate radial gauge rings (AI hero)
+    document.querySelectorAll('.ai-gauge-ring').forEach(function(ring){
+      var off = ring.getAttribute('data-gauge-off');
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){
+        ring.style.strokeDashoffset = off;
+      }); });
+    });
+  });
 }
 // ════════════════════════════════════════════════════════════════
 // ALL DEPARTMENTS — org-wide rollup (Summary tab only)
@@ -349,9 +656,7 @@ function renderAllDepartments() {
   if (worstSla && worstSla.p >= 30)
     watch.push({ tone: 'warn', dept: worstSla.name, text: worstSla.p + '% of scorecards came in late — slipping on the 3-day SLA' });
   // Positive: lowest decline rate among higher-volume depts
-  const cleanest = byDecline.slice().reverse()[0];
-  if (cleanest && cleanest.rate === 0)
-    watch.push({ tone: 'good', dept: cleanest.name, text: 'clean quarter — no declines recorded despite real volume' });
+  // (Positive "clean quarter" callout removed — wins now live in the dedicated Wins panel.)
   const watchIcon = t => t === 'bad' ? '<span style="color:#A32D2D;flex-shrink:0;margin-top:1px">\u2191</span>'
     : t === 'warn' ? '<span style="color:#854F0B;flex-shrink:0;margin-top:1px">!</span>'
     : '<span style="color:#0F6E56;flex-shrink:0;margin-top:1px">\u2713</span>';
@@ -360,6 +665,53 @@ function renderAllDepartments() {
     ? watch.map(w => '<div style="display:flex;gap:9px;align-items:flex-start">' + watchIcon(w.tone) +
         '<span style="font-size:12.5px;line-height:1.45;color:' + watchColor(w.tone) + '"><b style="font-weight:700">' + w.dept + '</b> \u2014 ' + w.text + '</span></div>').join('')
     : '<div style="font-size:12.5px;color:var(--text-secondary);font-style:italic">Nothing crossing the outlier lines this period.</div>';
+
+  // ── WINS — real positives computed from the data ──
+  const wins = [];
+  // 1. Scorecard completion %
+  let scSub = 0, scDue = 0;
+  depts.forEach(name => { (D.data[name].scorecards && D.data[name].scorecards.all_people || []).forEach(p => { scSub += p.submitted || 0; scDue += p.still_due || 0; }); });
+  const scComplete = (scSub + scDue) ? Math.round(scSub / (scSub + scDue) * 100) : null;
+  if (scComplete != null && scComplete >= 90)
+    wins.push('<b>' + scComplete + '% of scorecards</b> submitted \u2014 near-complete records');
+  // 2. On-time interview starts (avg across scored interviewers)
+  let onTimeVals = [];
+  depts.forEach(name => (D.data[name].bh_quality || []).forEach(r => { if ((r.count || 0) >= 5 && r.on_time != null) onTimeVals.push(r.on_time); }));
+  const onTimeAvg = onTimeVals.length ? Math.round(onTimeVals.reduce((a, b) => a + b, 0) / onTimeVals.length) : null;
+  if (onTimeAvg != null && onTimeAvg >= 85)
+    wins.push('<b>' + onTimeAvg + '% on-time</b> interview starts across the org');
+  // 3. Departments with zero declines (real volume)
+  const zeroDeclDepts = rows.filter(r => r.declines === 0 && r.completed >= 20).length;
+  if (zeroDeclDepts >= 1)
+    wins.push('<b>' + zeroDeclDepts + ' department' + (zeroDeclDepts !== 1 ? 's' : '') + '</b> ran the quarter with zero declines');
+  const winsHtml = wins.length
+    ? wins.map(w => '<div style="display:flex;gap:9px;align-items:flex-start"><span style="color:#5fe0ad;font-weight:800;flex-shrink:0">\u2713</span><span style="font-size:12.5px;line-height:1.45;color:#d7f0e6">' + w.replace(/<b>/g, '<b style="color:#ffffff;font-weight:700">') + '</span></div>').join('')
+    : '<div style="font-size:12.5px;font-style:italic;color:#9fd9c4">Wins will surface here as the data grows.</div>';
+  // Watch items restyled for the dark jewel panel
+  const watchHtmlBold = watch.length
+    ? watch.map(w => { const ic = w.tone === 'warn' ? '!' : '\u2191';
+        return '<div style="display:flex;gap:9px;align-items:flex-start"><span style="color:#fff0c4;font-weight:800;flex-shrink:0">' + ic + '</span><span style="font-size:12.5px;line-height:1.45;color:#fbeccb"><b style="font-weight:700;color:#ffffff">' + w.dept + '</b> \u2014 ' + w.text + '</span></div>'; }).join('')
+    : '<div style="font-size:12.5px;font-style:italic;color:#f5e0b0">Nothing crossing the outlier lines this period.</div>';
+  // Assembled bold stacked panels for inside the health box
+  const healthPanels =
+    '<div style="display:flex;flex-direction:column;gap:12px">' +
+      '<div style="position:relative;background:linear-gradient(135deg,#0c3b2e,#125440);border-radius:13px;padding:16px;overflow:hidden;box-shadow:0 10px 26px -10px rgba(12,59,46,.6)">' +
+        '<div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(62,201,154,.25),transparent 70%);border-radius:50%;pointer-events:none"></div>' +
+        '<div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;position:relative">' +
+          '<div style="width:24px;height:24px;border-radius:7px;background:rgba(62,201,154,.2);display:flex;align-items:center;justify-content:center;color:#5fe0ad;font-size:13px">\u2605</div>' +
+          '<span style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#7fe8c0">Wins</span>' +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:9px;position:relative">' + winsHtml + '</div>' +
+      '</div>' +
+      '<div style="position:relative;background:linear-gradient(135deg,#7a5410,#9c6f16);border-radius:13px;padding:16px;overflow:hidden;box-shadow:0 10px 26px -10px rgba(122,84,16,.55)">' +
+        '<div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(250,214,120,.32),transparent 70%);border-radius:50%;pointer-events:none"></div>' +
+        '<div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;position:relative">' +
+          '<div style="width:24px;height:24px;border-radius:7px;background:rgba(250,214,120,.25);display:flex;align-items:center;justify-content:center;color:#fadf87;font-size:12px">\u2691</div>' +
+          '<span style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#fae4a0">Watch areas</span>' +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:9px;position:relative">' + watchHtmlBold + '</div>' +
+      '</div>' +
+    '</div>';
 
   // ══ SKILL COVERAGE BY ROLE (org-wide, drilled to role level) ══
   const roleRows = [];
@@ -375,16 +727,23 @@ function renderAllDepartments() {
   const best = roleRows.slice(0, 3);
   const worst = roleRows.slice(-3).reverse();
   const roleLine = (r, color) =>
-    '<div style="display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:0.5px solid var(--border);font-size:12.5px">' +
-    '<span>' + r.role + ' <span style="color:var(--text-muted)">\u00b7 ' + r.dept + '</span></span>' +
+    '<div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:0.5px solid rgba(255,255,255,.07);font-size:13.5px;line-height:1.4">' +
+    '<span style="color:#e7ebf5">' + r.role + ' <span style="color:#c3cbe0">\u00b7 ' + r.dept + '</span></span>' +
     '<span style="color:' + color + ';font-weight:700">' + r.avg + '%</span></div>';
-  const skillsCard = '<div style="background:#fbfcfd;border:1px solid #dbe1ea;border-radius:10px;padding:14px">' +
-    '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:3px">Interview rigor \u00b7 by role</div>' +
-    '<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">How consistently JD skills are assessed, per role (' + roleRows.length + ' roles)</div>' +
-    '<div style="font-size:11px;color:#0F6E56;font-weight:700;margin-bottom:5px">Best covered</div>' +
-    best.map(r => roleLine(r, '#0F6E56')).join('') +
-    '<div style="font-size:11px;color:#A32D2D;font-weight:700;margin:12px 0 5px">Weakest 3 \u2014 roles where JD topics aren\u2019t making it into interviews</div>' +
-    worst.map(r => roleLine(r, '#A32D2D')).join('') +
+  const skillsCard = '<div class="dsig-card">' +
+    '<div style="display:flex;align-items:center;gap:9px;margin-bottom:3px">' +
+      '<div style="width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,#8079d6,#5a4fc4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;box-shadow:0 2px 6px rgba(90,79,196,.3)">\u25C9</div>' +
+      '<span style="font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#b3aef0">Interview rigor \u00b7 by role</span>' +
+    '</div>' +
+    '<div style="font-size:11px;color:#c3cbe0;margin:0 0 12px 33px">How consistently JD skills are assessed, per role (' + roleRows.length + ' roles)</div>' +
+    '<div class="att-dim">' +
+      '<div style="font-size:12px;color:#fff;font-weight:700;margin:8px 0 6px">Best covered</div>' +
+      best.map(r => roleLine(r, '#5fd3a8')).join('') +
+    '</div>' +
+    '<div class="att-focus" style="border-radius:10px;margin-top:12px">' +
+      '<div style="font-size:12px;color:#fff;font-weight:700;margin:0 0 6px">Weakest 3 \u2014 roles where JD topics aren\u2019t making it into interviews</div>' +
+      worst.map(r => roleLine(r, '#e0857a')).join('') +
+    '</div>' +
     '</div>';
 
   // ══ AI TOPIC (grouped — honest label) ══
@@ -403,15 +762,18 @@ function renderAllDepartments() {
   // Reuses the report's coaching rule: >=5 interviews, overall <80, 3+ of 8 signals <80.
   const CSIGS = [['on_time','On-time start'],['talk_ratio','Talk ratio'],['monologue','Monologue'],['eeoc','EEOC'],['q_opp','Question opportunity'],['agenda','Agenda-setting'],['fb_time','Feedback timeliness'],['fb_rate','Feedback rate']];
   const C_MIN = 5, C_TH = 80;
-  let coachFlagged = 0; const coachDepts = new Set(); const themeCount = {};
+  let coachFlagged = 0; const coachDepts = new Set(); const themeCount = {}; let coachScored = 0;
   CSIGS.forEach(([, lbl]) => themeCount[lbl] = 0);
   depts.forEach(name => {
     (D.data[name].bh_quality || []).forEach(r => {
-      if ((r.count || 0) >= C_MIN && (r.overall != null ? r.overall : 100) < C_TH) {
-        const weak = CSIGS.filter(([k]) => r[k] != null && r[k] < C_TH);
-        if (weak.length >= 3) {
-          coachFlagged++; coachDepts.add(name);
-          weak.forEach(([, lbl]) => themeCount[lbl]++);
+      if ((r.count || 0) >= C_MIN) {
+        coachScored++;
+        if ((r.overall != null ? r.overall : 100) < C_TH) {
+          const weak = CSIGS.filter(([k]) => r[k] != null && r[k] < C_TH);
+          if (weak.length >= 3) {
+            coachFlagged++; coachDepts.add(name);
+            weak.forEach(([, lbl]) => themeCount[lbl]++);
+          }
         }
       }
     });
@@ -419,86 +781,203 @@ function renderAllDepartments() {
   const themes = Object.entries(themeCount).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]).slice(0, 5);
   const themeMax = themes.length ? themes[0][1] : 1;
   const themeColor = c => c / themeMax >= 0.8 ? '#BA6029' : c / themeMax >= 0.55 ? '#F6BF56' : '#c9a24a';
+  // Plain-English translation of the top coaching themes for exec readability.
+  const themePlain = { 'Feedback rate': 'giving feedback', 'Feedback timeliness': 'timely feedback', 'Talk ratio': 'letting candidates talk', 'Agenda-setting': 'setting an agenda', 'Question opportunity': 'time for candidate questions', 'Monologue': 'not over-talking', 'On-time start': 'starting on time', 'EEOC': 'compliance' };
+  const topPlain = themes.slice(0, 3).map(([lbl]) => themePlain[lbl] || lbl.toLowerCase());
+  const meetingBar = Math.max(coachScored - coachFlagged, 0);
+  const flagPct = coachScored ? Math.round(coachFlagged / coachScored * 100) : 0;
   const coachingCard = coachFlagged > 0
-    ? '<div style="background:#fbfcfd;border:1px solid #dbe1ea;border-radius:10px;padding:14px">' +
-      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:3px">Coaching opportunities</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">' + coachFlagged + ' interviewers across ' + coachDepts.size + ' departments show a coachable pattern (5+ interviews, quality signals below the bar)</div>' +
-      '<div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:9px">Most common areas to coach</div>' +
-      '<div style="display:flex;flex-direction:column;gap:9px">' +
-        themes.map(([lbl, c]) =>
-          '<div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px"><span>' + lbl + '</span><span style="color:var(--text-secondary)">' + c + ' interviewer' + (c !== 1 ? 's' : '') + '</span></div>' +
-          '<div style="height:7px;background:#eef1f5;border-radius:4px;overflow:hidden"><div style="width:' + Math.round(c / themeMax * 100) + '%;height:100%;background:' + themeColor(c) + '"></div></div></div>'
-        ).join('') +
+    ? '<div class="dsig-card">' +
+      '<div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">' +
+      '<div style="width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,#d9a445,#9c6f16);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;box-shadow:0 2px 6px rgba(156,111,22,.3)">\u25CE</div>' +
+      '<span style="font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#e6bf72;display:flex;align-items:center;gap:6px">Interviewer coaching' +
+      '<span class="hub-info hub-info-light" tabindex="0" data-tip="Based on BrightHire quality data for interviewers with 5+ recorded interviews \u2014 a sample, not every interviewer. These signals haven\u2019t been shared with interviewers or built into training yet, so this isn\u2019t a performance judgment \u2014 it\u2019s a directional read of where things stand today, to inform where coaching could help.">\u24D8</span>' +
+      '</span>' +
       '</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);border-top:0.5px solid var(--border);margin-top:14px;padding-top:9px;line-height:1.5">Concentrated in a few areas \u2014 the top themes suggest a shared training need, not just individual gaps. Pick a department to see who.</div>' +
+      '<div class="att-dim">' +
+      '<div style="display:flex;height:34px;border-radius:9px;overflow:hidden;margin-bottom:8px;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)">' +
+        '<div style="width:' + (100 - flagPct) + '%;background:linear-gradient(90deg,rgba(60,150,110,.55),rgba(95,211,168,.55));display:flex;align-items:center;padding-left:12px;color:#eafff6;font-size:12px;font-weight:700;white-space:nowrap">' + (100 - flagPct) + '% meeting the bar</div>' +
+        '<div style="width:' + flagPct + '%;background:linear-gradient(90deg,rgba(184,135,31,.55),rgba(224,182,74,.55));display:flex;align-items:center;justify-content:center;color:#fff4dd;font-size:12px;font-weight:800">' + flagPct + '%</div>' +
+      '</div>' +
+      '<div style="font-size:11px;color:#c3cbe0;margin-bottom:10px">of ' + coachScored + ' interviewers with enough interviews to assess</div>' +
+      '</div>' +
+      '<div class="att-focus" style="border-radius:10px">' +
+      '<div style="font-size:12.5px;color:#e7ebf5;line-height:1.55"><b style="font-weight:700;color:#fff">' + flagPct + '%</b> would benefit from coaching \u2014 mostly on the same habits: <b style="font-weight:600;color:#fff">' + topPlain.join(', ') + '</b>.</div>' +
+      '<div class="hub-info-line" tabindex="0" data-tip="' + ('Top BrightHire signals below the bar: ' + themes.slice(0,5).map(([lbl,c]) => lbl + ' (' + c + ')').join(', ') + '.').replace(/"/g,'&quot;') + '" style="font-size:11px;color:#e6bf72;background:rgba(230,191,114,.1);border-radius:8px;padding:8px 11px;margin-top:12px;line-height:1.4;cursor:help;position:relative">Concentrated in a few areas \u2014 a single focused training could lift most of them. <span style="opacity:.6">\u24D8</span></div>' +
+      '</div>' +
       '</div>'
     : '';
 
-  // ── KPI strip (big Option-A style cards) ──
-  const kpi = (label, value, sub) =>
-    '<div class="stat-card"><div class="stat-label">' + label + '</div>' +
-    '<div class="stat-value">' + value + '</div>' +
-    '<div style="font-size:12px;color:var(--text-secondary)">' + sub + '</div></div>';
-  const aiKpi = aiAvg != null
-    ? '<div class="stat-card"><div class="stat-label">AI as a hiring priority</div>' +
-      '<div class="stat-value" style="color:#3C3489">' + aiAvg + '%</div>' +
-      '<div style="font-size:12px;color:var(--text-secondary)">of interviews assessed an AI skill ' +
-      '<span title="Across ' + aiRoleSet.size + ' roles in ' + aiDeptSet.size + ' departments; grouped across AI-named skills (e.g. AI Utilization, AI Tools, Machine Learning)" style="border-bottom:1px dotted #9ca3af;cursor:help;color:#9ca3af">\u24D8</span></div></div>'
-    : '';
-  const kpiStrip = '<div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">' +
-    kpi('Interviews completed', fmt(totCompleted), 'by ' + fmt(totActive) + ' active interviewers') +
-    kpi('Interviews declined by interviewers', orgRate + '%', fmt(totDeclines) + ' of ' + fmt(totCompleted) + ' interviews were declined') +
-    kpi('Interview scheduling changes', fmt(totChanges), 'across all departments') +
-    aiKpi +
-    '</div>';
-
-  // ── Ranked department table ──
-  const amber = v => v >= 15 ? 'color:#b45309;font-weight:700' : '';
-  const tbody = rows.map(r =>
-    '<tr style="cursor:pointer" onclick="selectDept(\'' + r.name.replace(/'/g, "\\'") + '\')">' +
-      '<td style="font-weight:500">' + r.name + '</td>' +
-      '<td style="text-align:right">' + fmt(r.completed) + '</td>' +
-      '<td style="text-align:right">' + fmt(r.declines) + '</td>' +
-      '<td style="text-align:right;' + amber(r.rate) + '">' + r.rate + '%</td>' +
-      '<td style="text-align:right">' + fmt(r.changes) + '</td>' +
-      '<td style="text-align:right;color:var(--lawn);font-weight:700">→</td>' +
-    '</tr>').join('');
-  const table = '<div class="table-wrap" style="margin-bottom:0"><table class="data-table" style="width:100%"><thead><tr>' +
-    '<th>Department</th>' +
-    '<th style="text-align:right">Completed</th>' +
-    '<th style="text-align:right">Declines</th>' +
-    '<th style="text-align:right">Decline rate</th>' +
-    '<th style="text-align:right">Changes</th>' +
-    '<th style="text-align:right"></th>' +
-    '</tr></thead><tbody>' + tbody + '</tbody></table></div>';
-  const tableSection = sectionShell('Departments ranked by volume',
-    table,
-    'Every department this period, highest interview volume first. Figures match each department\u2019s own page \u2014 click any row to open it. Decline rate is flagged when it reaches 15%.');
-
-  // ── Assemble Summary ──
-  const hero = '<div style="text-align:right;flex-shrink:0;padding-left:20px">' +
-      '<div style="font-size:30px;font-weight:700;line-height:1;color:var(--dusk)">' + fmt(totCompleted) + '</div>' +
-      '<div style="font-size:11px;color:var(--text-secondary);margin-top:3px">interviews completed org-wide</div>' +
-    '</div>';
-  // KPIs (left) + watch list (right), side by side
-  const kpiWatch = '<div style="display:grid;grid-template-columns:0.9fr 1.1fr;gap:16px;margin-bottom:4px">' +
-    '<div>' + kpiStrip.replace('grid-template-columns:repeat(4,1fr)', 'grid-template-columns:repeat(2,1fr)').replace(/margin-bottom:28px/, 'margin-bottom:0') + '</div>' +
-    '<div style="background:#fbfcfd;border:1px solid #dbe1ea;border-radius:10px;padding:14px">' +
-      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:10px">Interviewer health \u2014 watch areas</div>' +
-      '<div style="display:flex;flex-direction:column;gap:8px">' + watchHtml + '</div>' +
-    '</div>' +
-    '</div>';
-  // Skills-by-role + AI topic cards
-  const insightCards = '<div style="display:grid;grid-template-columns:' + (coachingCard ? '1fr 1fr' : '1fr') + ';gap:16px;margin-top:16px">' +
-    skillsCard + coachingCard + '</div>';
-  const headerBlock = '<section class="section-shell" data-section="Quarter at a glance">' +
-      '<div class="section-shell-header" style="display:flex;justify-content:space-between;align-items:center">' +
-        '<div>' +
-          '<div class="section-shell-title">All departments \u00b7 ' + (D.meta.quarter || '') + '</div>' +
-          '<div class="section-shell-subtitle">The top things to look at, then the full breakdown below. Pick a department above to drill into detail.</div>' +
-        '</div>' + hero +
+  // ── KPI strip — hub tiles with icon chips + colored top accents ──
+  const kpiTile = (label, value, sub, opts) => {
+    opts = opts || {};
+    const chipBg = opts.chipBg || '#eef2f7', chipColor = opts.chipColor || '#6b7280', icon = opts.icon || '\u25CF';
+    const accent = opts.accent || '#1B8751';
+    return '<div class="stat-card hub-tile" style="border-top:3px solid ' + accent + '">' +
+      '<div class="hub-chip" style="background:' + chipBg + ';color:' + chipColor + '">' + icon + '</div>' +
+      '<div class="stat-label">' + label + '</div>' +
+      '<div class="stat-value">' + value + '</div>' +
+      '<div style="font-size:12px;color:var(--text-secondary)">' + sub + '</div></div>';
+  };
+  // ── HERO KPIs (dark intelligence band, All Departments only) ──
+  const completedHero =
+    '<div class="hero-card">' +
+      '<div class="hero-card-glow"></div>' +
+      '<div style="display:flex;align-items:center;gap:11px;position:relative">' +
+        '<div style="width:34px;height:34px;border-radius:50%;background:rgba(90,120,220,.18);border:1px solid rgba(120,150,240,.35);display:flex;align-items:center;justify-content:center;color:#8fb0ff;font-size:15px">\u2713</div>' +
+        '<span style="font-size:13px;color:#dbe0ee">Interviews completed</span>' +
       '</div>' +
-      '<div class="section-shell-body">' + kpiWatch + insightCards + '</div>' +
+      '<div style="font-size:46px;font-weight:700;color:#fff;line-height:1;margin:14px 0 6px;letter-spacing:-1px;position:relative" data-count="' + totCompleted + '">' + fmt(totCompleted) + '</div>' +
+      '<div style="font-size:12px;color:#c3cbe0;position:relative">across all departments</div>' +
+    '</div>';
+  // Radial gauge for AI — header on top, gauge + description below (mirrors the completed card)
+  const aiHero = aiAvg != null
+    ? (function(){
+        const r = 34, circ = 2 * Math.PI * r, off = circ * (1 - aiAvg/100);
+        return '<div class="hero-card">' +
+          '<div class="hero-card-glow" style="background:radial-gradient(circle,rgba(150,90,230,.22),transparent 70%)"></div>' +
+          // Header row: medallion + title + floating info
+          '<div style="display:flex;align-items:center;gap:11px;position:relative;margin-bottom:16px">' +
+            '<div style="width:34px;height:34px;border-radius:50%;background:rgba(160,107,255,.18);border:1px solid rgba(190,150,255,.35);display:flex;align-items:center;justify-content:center;color:#c9a6ff;font-size:14px">\u2726</div>' +
+            '<span style="font-size:13px;color:#cdbdf2;font-weight:600">AI as a hiring priority</span>' +
+            '<span class="hub-info hub-info-light" tabindex="0" data-tip="From BrightHire\u2019s Topic Trends report, which measures how often a defined topic \u2014 here, AI \u2014 is discussed across candidates and positions in the period. It reflects what\u2019s surfacing in interview conversations \u2014 a directional read of how much AI is coming up as we hire.">\u24D8</span>' +
+          '</div>' +
+          // Gauge + description in line
+          '<div style="display:flex;align-items:center;gap:18px;position:relative">' +
+            '<div style="position:relative;width:88px;height:88px;flex-shrink:0">' +
+              '<svg width="88" height="88" viewBox="0 0 88 88" style="transform:rotate(-90deg)">' +
+                '<circle cx="44" cy="44" r="' + r + '" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="7"/>' +
+                '<circle class="ai-gauge-ring" cx="44" cy="44" r="' + r + '" fill="none" stroke="url(#aiGauge)" stroke-width="7" stroke-linecap="round" stroke-dasharray="' + circ.toFixed(1) + '" stroke-dashoffset="' + circ.toFixed(1) + '" data-gauge-off="' + off.toFixed(1) + '"/>' +
+                '<defs><linearGradient id="aiGauge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a06bff"/><stop offset="1" stop-color="#d4b0ff"/></linearGradient></defs>' +
+              '</svg>' +
+              '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff" data-count="' + aiAvg + '" data-suffix="%">' + aiAvg + '%</div>' +
+            '</div>' +
+            '<div style="font-size:13px;color:#9aa0c4;line-height:1.5">of interviews<br>discussed AI</div>' +
+          '</div>' +
+        '</div>';
+      })()
+    : '';
+  const kpiStrip = '<div class="stats-grid" style="grid-template-columns:repeat(2,1fr)">' +
+    completedHero +
+    aiHero +
+    '</div>';
+
+  // ── Ranked department rows (expandable, top-5 shown, rest collapsed) ──
+  const maxCompleted = Math.max.apply(null, rows.map(r => r.completed).concat([1]));
+  const totalOrg = rows.reduce((s, r) => s + r.completed, 0) || 1;
+  const TOP_N = 5;
+  const topRows = rows.slice(0, TOP_N);
+  const restRows = rows.slice(TOP_N);
+  // Bar color by decline severity (keeps the report's palette)
+  const barColor = r => r.rate >= 15 ? 'linear-gradient(90deg,#8a4a52,#a85a63)' : 'linear-gradient(90deg,#3e4a6b,#59648a)';
+  const rowId = name => 'drow-' + name.replace(/[^a-zA-Z0-9]/g, '');
+  const deptRow = (r) => {
+    const barPct = Math.round(r.completed / maxCompleted * 100);
+    const flagged = r.rate >= 15;
+    const rid = rowId(r.name);
+    // Collapsed summary row
+    let h = '<div class="drow" onclick="toggleDeptRow(\'' + rid + '\')">' +
+      '<span class="drow-caret" id="car-' + rid + '">\u203A</span>' +
+      '<span class="drow-name">' + r.name + '</span>' +
+      '<div class="drow-track"><div class="drow-fill" style="width:' + barPct + '%;background:' + barColor(r) + '"></div></div>' +
+      '<span class="drow-done">' + fmt(r.completed) + '</span>' +
+    '</div>';
+    // Expandable detail
+    h += '<div class="drow-detail" id="' + rid + '" style="display:none">' +
+      '<div class="drow-stats">' +
+        '<div><div class="drow-stat-l">Declines</div><div class="drow-stat-v">' + fmt(r.declines) + '</div></div>' +
+        '<div><div class="drow-stat-l">Decline rate</div><div class="drow-stat-v" style="color:' + (flagged ? '#e0857a' : '#e7ebf5') + '">' + r.rate + '%</div></div>' +
+        '<div><div class="drow-stat-l">Changes</div><div class="drow-stat-v">' + fmt(r.changes) + '</div></div>' +
+      '</div>' +
+      (flagged ? '<div class="drow-alert"><span style="color:#e0857a">\u26A0</span> <b>' + r.name + '</b> \u2014 decline rate is the highest in the org at ' + r.rate + '%</div>' : '') +
+      '<div class="drow-open" onclick="event.stopPropagation();selectDept(\'' + r.name.replace(/'/g, "\\'") + '\')">Open ' + r.name + ' \u2192</div>' +
+    '</div>';
+    return h;
+  };
+  const topHtml = topRows.map(deptRow).join('');
+  // Collapsed "N more" summary row
+  const restMaxRate = restRows.length ? Math.max.apply(null, restRows.map(r => r.rate)) : 0;
+  const restHtml = restRows.length ? deptRow ? restRows.map(deptRow).join('') : '' : '';
+  const moreRow = restRows.length
+    ? '<div class="drow drow-more" onclick="toggleMoreDepts()">' +
+        '<span class="drow-caret" id="car-more">\u203A</span>' +
+        '<span class="drow-name" id="more-label" style="color:#c3cbe0;width:auto;flex:1">' + restRows.length + ' more departments \u2014 all within normal range (highest decline rate ' + restMaxRate + '%)</span>' +
+        '<span class="drow-showall" id="more-btn" data-all="SHOW ALL ' + rows.length + '">SHOW ALL ' + rows.length + '</span>' +
+      '</div>' +
+      '<div id="more-depts" style="display:none">' + restHtml + '</div>'
+    : '';
+  const tableSection = '<div class="ranked-band">' +
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">' +
+        '<div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#e7ebf5">Departments ranked by volume</div>' +
+        '<div style="font-size:11px;color:#c3cbe0">' + TOP_N + ' of ' + rows.length + ' shown</div>' +
+      '</div>' +
+      '<div style="font-size:12px;color:#c3cbe0;margin-bottom:16px;line-height:1.5">Every department this period, highest interview volume first \u2014 click a row to expand. Decline rate is flagged when it reaches 15%.</div>' +
+      '<div class="drow-head"><span style="flex:0 0 auto;width:14px"></span><span class="drow-name" style="font-size:10.5px;letter-spacing:.5px;color:#aab2ca">DEPARTMENT</span><span style="flex:1;font-size:10.5px;letter-spacing:.5px;color:#aab2ca">VOLUME</span><span style="font-size:10.5px;letter-spacing:.5px;color:#aab2ca">DONE</span></div>' +
+      topHtml + moreRow +
+    '</div>';
+
+  // ── Process Health strip (repurposed wins, inline) ──
+  const winsInline = wins.map(function(w){
+    // wins are like "<b>98% of scorecards</b> submitted — near-complete records"
+    var m = w.match(/<b>(.*?)<\/b>\s*(.*)/);
+    var strong = m ? m[1] : w, rest = m ? m[2] : '';
+    return '<div style="display:flex;gap:10px;align-items:flex-start;flex:1;min-width:180px">' +
+      '<span style="color:#5fd3a8;margin-top:5px;font-size:8px">\u25CF</span>' +
+      '<div><span style="color:#fff;font-weight:700;font-size:14px">' + strong + '</span> ' +
+      '<span style="color:#d3d9ea;font-size:12.5px">' + rest + '</span></div></div>';
+  }).join('');
+  const processHealth = '<div class="dsig-card sig-positive" style="padding:16px 20px">' +
+    '<div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#cdd6ee;margin-bottom:14px">Positive signals</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:20px">' + winsInline + '</div>' +
+    '</div>';
+
+  // ── Watch areas (dark) ──
+  const watchDark = '<div class="dsig-card sig-attention">' +
+    '<div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#cdd6ee;margin-bottom:14px">Watch areas</div>' +
+    '<div style="display:flex;flex-direction:column;gap:12px">' +
+      watch.map(function(w){
+        var tag = w.tone === 'warn' ? 'NOTABLE' : 'ATTENTION';
+        var dot = w.tone === 'warn' ? '#e0b64a' : '#e07a6b';
+        return '<div style="display:flex;gap:10px;align-items:flex-start">' +
+          '<span style="color:' + dot + ';margin-top:6px;font-size:8px">\u25CF</span>' +
+          '<div style="font-size:12.5px;line-height:1.5;color:#dde2f0"><span style="font-size:10px;letter-spacing:.5px;color:#c3cbe0;margin-right:7px">' + tag + '</span><b style="color:#fff;font-weight:700">' + w.dept + '</b> \u2014 ' + w.text + '</div></div>';
+      }).join('') +
+    '</div></div>';
+
+  // ── Balanced 2-col below Process Health: [Rigor | Watch+Coaching] ──
+  const kpiWatch = '<div style="display:grid;grid-template-columns:1.15fr 0.85fr;gap:16px;align-items:stretch">' +
+    '<div class="att-col-left" style="display:flex;flex-direction:column;gap:16px">' + skillsCard + '</div>' +
+    '<div class="att-col-right" style="display:flex;flex-direction:column;gap:16px">' + watchDark + (coachingCard || '') + '</div>' +
+    '</div>';
+
+  // ── Signals filter bar ──
+  const signalsBar = '<div style="display:flex;align-items:center;gap:14px;margin:2px 0 16px">' +
+    '<span style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#c3cbe0">Signals</span>' +
+    '<div style="display:inline-flex;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:3px">' +
+      '<button class="sig-tab active" data-sig="all" onclick="setSignalFilter(\'all\')">All</button>' +
+      '<button class="sig-tab" data-sig="attention" onclick="setSignalFilter(\'attention\')"><span style="color:#e07a6b;font-size:8px;margin-right:5px">\u25CF</span>Attention only</button>' +
+    '</div></div>';
+
+  // Dark intelligence hero band — intro + KPI hero cards
+  const heroBand = '<div class="hero-band">' +
+      '<div class="hero-band-glow"></div>' +
+      '<div style="position:relative">' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
+          '<div style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#9fb2e8;font-size:12px">\u25C9</div>' +
+          '<span style="font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#cdd6ee">All departments \u00b7 ' + (D.meta.quarter || '') + '</span>' +
+        '</div>' +
+        '<div style="font-size:14px;color:#d3d9ea;margin-bottom:20px;max-width:620px;line-height:1.5">The top things to look at, then the full breakdown below. Pick a department above to drill into detail.</div>' +
+        kpiStrip +
+      '</div>' +
+    '</div>';
+  const headerBlock = '<section class="section-shell all-dept-shell" data-section="Quarter at a glance">' +
+      '<div class="section-shell-body" style="padding:0">' + heroBand +
+        '<div class="dark-body" style="padding:20px">' +
+          signalsBar +
+          '<div id="sig-positive-zone" style="margin-bottom:16px">' + processHealth + '</div>' +
+          kpiWatch +
+        '</div>' +
+      '</div>' +
     '</section>';
   document.getElementById('tab-overview').innerHTML =
     headerBlock + tableSection +
@@ -525,6 +1004,31 @@ function switchToTab(id) {
     b.textContent.toLowerCase().includes(id === 'metrics' ? 'metrics' : 'engagement')
   );
   showTab(id, btn);
+}
+// Signals filter: "all" shows everything, "attention" hides the positive/process-health zone
+function setSignalFilter(mode) {
+  document.querySelectorAll('.sig-tab').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-sig') === mode);
+  });
+  var body = document.querySelector('.dark-body');
+  if (body) body.classList.toggle('attention-mode', mode === 'attention');
+}
+function toggleDeptRow(rid){
+  var d = document.getElementById(rid), c = document.getElementById('car-' + rid);
+  if (!d) return;
+  var open = d.style.display !== 'none';
+  d.style.display = open ? 'none' : 'block';
+  if (c) c.classList.toggle('open', !open);
+}
+function toggleMoreDepts(){
+  var m = document.getElementById('more-depts'), c = document.getElementById('car-more');
+  var btn = document.getElementById('more-btn'), lbl = document.getElementById('more-label');
+  if (!m) return;
+  var open = m.style.display !== 'none';
+  m.style.display = open ? 'none' : 'block';
+  if (c) c.classList.toggle('open', !open);
+  if (btn) btn.textContent = open ? btn.getAttribute('data-all') : 'SHOW TOP 5';
+  if (lbl) lbl.style.display = open ? '' : 'none';
 }
 function fmt(n) { return (n === null || n === undefined || n === '') ? '—' : Number(n).toLocaleString(); }
 function empty(msg) {
