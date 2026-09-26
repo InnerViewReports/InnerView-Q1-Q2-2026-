@@ -401,6 +401,40 @@ body{background:linear-gradient(180deg,#e8ecf3 0%,#eef1f5 100%)!important;backgr
 .dsig-card,.hero-card,.ranked-band{transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s ease}
 .dsig-card:hover,.hero-card:hover{transform:scale(1.015);box-shadow:0 14px 34px -14px rgba(0,0,0,.5)}
 @media(prefers-reduced-motion:reduce){.dsig-card:hover,.hero-card:hover{transform:none}}
+/* Clickable row hover cues */
+.rigor-row:hover,.watch-row:hover{background:rgba(255,255,255,.08)}
+.rigor-row,.watch-row{transition:background .15s ease}
+/* Brief highlight when a drill-in lands on a section */
+@keyframes drillFlash{0%{box-shadow:0 0 0 3px rgba(127,176,255,.55)}100%{box-shadow:0 0 0 3px rgba(127,176,255,0)}}
+.drill-flash{animation:drillFlash 1.6s ease-out;border-radius:16px}
+
+/* ══ Department Summary — Home-page depth language ══ */
+/* Dark atmospheric hero */
+.ds-hero{position:relative;background:radial-gradient(ellipse 80% 120% at 15% 20%,#26224a 0%,#1a1f38 45%,#12162a 100%);border-radius:20px;padding:30px;margin-bottom:22px;overflow:hidden;box-shadow:0 20px 50px -18px rgba(20,18,45,.55)}
+.ds-hero-glow-a{position:absolute;top:-60px;right:-40px;width:380px;height:300px;background:radial-gradient(ellipse,rgba(150,110,240,.28),transparent 65%);pointer-events:none}
+.ds-hero-glow-b{position:absolute;bottom:-80px;left:20%;width:300px;height:220px;background:radial-gradient(ellipse,rgba(90,120,220,.16),transparent 70%);pointer-events:none}
+/* Inset elevated KPI module */
+.ds-hero-kpi{flex:0 0 auto;min-width:290px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:24px 32px;position:relative;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 10px 30px -12px rgba(0,0,0,.5)}
+.ds-hero-kpi-glow{position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(150,110,240,.25),transparent 70%);border-radius:50%;pointer-events:none}
+/* Luminous body surface behind the two column groups */
+.ds-body-surface{background:linear-gradient(180deg,rgba(200,202,221,.35),rgba(220,218,236,.5));border-radius:18px;padding:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+/* Column surfaces (mid tonal layer) */
+.ds-surface{background:linear-gradient(160deg,rgba(255,255,255,.5),rgba(255,255,255,.22));border:1px solid rgba(255,255,255,.6);border-radius:18px;padding:16px;box-shadow:0 8px 24px -12px rgba(60,52,100,.22)}
+/* Glass metric cards */
+.ds-glass{position:relative;background:linear-gradient(160deg,rgba(255,255,255,.62),rgba(255,255,255,.34));border:1px solid rgba(255,255,255,.7);border-radius:15px;padding:16px;overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),inset 0 0 0 1px rgba(255,255,255,.15),0 6px 18px -8px rgba(60,52,100,.28),0 1px 3px rgba(60,52,100,.1);
+  transition:transform .26s cubic-bezier(.2,.7,.3,1),box-shadow .26s ease,border-color .26s ease}
+.ds-glass-glow{content:"";position:absolute;inset:0;border-radius:15px;pointer-events:none;opacity:0;transition:opacity .3s ease;
+  background:radial-gradient(ellipse 70% 90% at 80% 0%,rgba(150,110,240,.14),transparent 60%),radial-gradient(ellipse 60% 80% at 10% 100%,rgba(90,120,220,.10),transparent 65%)}
+.ds-glass:hover{transform:translateY(-5px);border-color:rgba(180,170,240,.85);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.2),0 18px 40px -14px rgba(70,55,140,.4),0 4px 10px -4px rgba(60,52,100,.2),0 0 0 1px rgba(160,130,240,.25)}
+.ds-glass:hover .ds-glass-glow{opacity:1}
+/* Status pills */
+.ds-pill{font-size:10px;font-weight:800;letter-spacing:.3px;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.ds-ok{background:#dbeafe;color:#1e5aa8}
+.ds-watch{background:#fbe9d0;color:#a8641a}
+.ds-att{background:#f7dcda;color:#a3352a}
+@media(prefers-reduced-motion:reduce){.ds-glass:hover{transform:none}}
 
 /* ── Ranked departments band (matches the mid-tone signals area) ── */
 .ranked-band{background:linear-gradient(180deg,#6b7396 0%,#5c6488 100%);border-radius:16px;padding:22px 24px;margin-top:16px;box-shadow:0 10px 30px -12px rgba(35,47,70,.4)}
@@ -466,6 +500,18 @@ body{background:linear-gradient(180deg,#e8ecf3 0%,#eef1f5 100%)!important;backgr
 <script>
 let currentDept = null;
 const D = window.PORCH_DATA;
+// Per-person late/very-late decline detail, sourced from the ModernLoop decline lead-time report.
+// Only departments with a pulled report appear here; others fall back to totals-only.
+const DECLINE_LEADTIME = {
+  "Data Science": {
+    late:  { total: 18, people: [["Vandana Mohan",12],["Charissa Rentier",2],["Wade Seidule",2],["Sagar Joshi",1],["Anagh Pal",1]], ones: 0 },
+    vlate: { total: 13, people: [["Vandana Mohan",10],["Charissa Rentier",2],["Sagar Joshi",1]], ones: 0 }
+  },
+  "Engineering": {
+    late:  { total: 53, people: [["Sagar Joshi",11],["Michael Friedmann",3],["Ramkishore Swaminathan",2],["Reggie Montilus",2],["John Hammerlund",2],["Keji Ren",2],["Carlos Arteaga",2],["Mike Briseno",2],["Jason Falk",2],["Josh Cantor",2],["Elijah Tolentino",2]], ones: 21 },
+    vlate: { total: 20, people: [["Sagar Joshi",7],["Ramkishore Swaminathan",2],["Michael Friedmann",2]], ones: 9 }
+  }
+};
 function init() {
   if (!D) { document.body.innerHTML = '<p style="padding:40px;color:red">No data found. Run build.py first.</p>'; return; }
   document.getElementById('hdr-title').textContent = D.meta.title || 'The InnerView Report';
@@ -642,19 +688,19 @@ function renderAllDepartments() {
     return Math.round(ppl.filter(p => p.avg_hrs >= 72).length / ppl.length * 100);
   };
   const watch = [];
-  // Highest decline rate
+  // Highest decline rate → Metrics tab, Interviewer decline behavior
   const byDecline = meaningful.slice().sort((a, b) => b.rate - a.rate);
   if (byDecline[0] && byDecline[0].rate > 0)
-    watch.push({ tone: 'bad', dept: byDecline[0].name, text: 'decline rate is the highest in the org at ' + byDecline[0].rate + '%' });
-  // Heaviest coordination load (changes)
+    watch.push({ tone: 'bad', dept: byDecline[0].name, text: 'decline rate is the highest in the org at ' + byDecline[0].rate + '%', tab: 'metrics', section: 'Interviewer decline behavior' });
+  // Heaviest coordination load (changes) → Metrics tab, Coordination load
   const byChanges = meaningful.slice().sort((a, b) => b.changes - a.changes);
   if (byChanges[0] && byChanges[0].changes > 0)
-    watch.push({ tone: 'bad', dept: byChanges[0].name, text: 'carries the heaviest coordination load — ' + fmt(byChanges[0].changes) + ' interview changes' });
-  // Worst scorecard SLA
+    watch.push({ tone: 'bad', dept: byChanges[0].name, text: 'carries the heaviest coordination load — ' + fmt(byChanges[0].changes) + ' interview changes', tab: 'metrics', section: 'Coordination load' });
+  // Worst scorecard SLA → Engagement tab, Scorecard performance
   let worstSla = null;
   meaningful.forEach(r => { const p = scLatePct(D.data[r.name]); if (p != null && (!worstSla || p > worstSla.p)) worstSla = { name: r.name, p }; });
   if (worstSla && worstSla.p >= 30)
-    watch.push({ tone: 'warn', dept: worstSla.name, text: worstSla.p + '% of scorecards came in late — slipping on the 3-day SLA' });
+    watch.push({ tone: 'warn', dept: worstSla.name, text: worstSla.p + '% of scorecards came in late — slipping on the 3-day SLA', tab: 'engagement', section: 'Scorecard performance' });
   // Positive: lowest decline rate among higher-volume depts
   // (Positive "clean quarter" callout removed — wins now live in the dedicated Wins panel.)
   const watchIcon = t => t === 'bad' ? '<span style="color:#A32D2D;flex-shrink:0;margin-top:1px">\u2191</span>'
@@ -727,9 +773,9 @@ function renderAllDepartments() {
   const best = roleRows.slice(0, 3);
   const worst = roleRows.slice(-3).reverse();
   const roleLine = (r, color) =>
-    '<div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:0.5px solid rgba(255,255,255,.07);font-size:13.5px;line-height:1.4">' +
+    '<div class="rigor-row" onclick="drillToSkillCoverage(\'' + r.dept.replace(/'/g, "\\'") + '\',\'' + r.role.replace(/'/g, "\\'") + '\')" title="Open ' + r.dept + ' \u2192 ' + r.role + ' skill coverage" style="display:flex;justify-content:space-between;gap:8px;padding:7px 8px;margin:0 -8px;border-radius:7px;border-bottom:0.5px solid rgba(255,255,255,.07);font-size:13.5px;line-height:1.4;cursor:pointer">' +
     '<span style="color:#e7ebf5">' + r.role + ' <span style="color:#c3cbe0">\u00b7 ' + r.dept + '</span></span>' +
-    '<span style="color:' + color + ';font-weight:700">' + r.avg + '%</span></div>';
+    '<span style="color:' + color + ';font-weight:700">' + r.avg + '% <span style="color:#9aa0c4;font-weight:400">\u203A</span></span></div>';
   const skillsCard = '<div class="dsig-card">' +
     '<div style="display:flex;align-items:center;gap:9px;margin-bottom:3px">' +
       '<div style="width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,#8079d6,#5a4fc4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;box-shadow:0 2px 6px rgba(90,79,196,.3)">\u25C9</div>' +
@@ -938,9 +984,10 @@ function renderAllDepartments() {
       watch.map(function(w){
         var tag = w.tone === 'warn' ? 'NOTABLE' : 'ATTENTION';
         var dot = w.tone === 'warn' ? '#e0b64a' : '#e07a6b';
-        return '<div style="display:flex;gap:10px;align-items:flex-start">' +
+        return '<div class="watch-row" onclick="drillToSection(\'' + w.dept.replace(/'/g, "\\'") + '\',\'' + (w.tab || 'metrics') + '\',\'' + (w.section || '').replace(/'/g, "\\'") + '\')" title="Open ' + w.dept + ' \u2192 ' + (w.section || 'detail') + '" style="display:flex;gap:10px;align-items:flex-start;padding:7px 8px;margin:0 -8px;border-radius:8px;cursor:pointer">' +
           '<span style="color:' + dot + ';margin-top:6px;font-size:8px">\u25CF</span>' +
-          '<div style="font-size:12.5px;line-height:1.5;color:#dde2f0"><span style="font-size:10px;letter-spacing:.5px;color:#c3cbe0;margin-right:7px">' + tag + '</span><b style="color:#fff;font-weight:700">' + w.dept + '</b> \u2014 ' + w.text + '</div></div>';
+          '<div style="flex:1;font-size:12.5px;line-height:1.5;color:#dde2f0"><span style="font-size:10px;letter-spacing:.5px;color:#c3cbe0;margin-right:7px">' + tag + '</span><b style="color:#fff;font-weight:700">' + w.dept + '</b> \u2014 ' + w.text + '</div>' +
+          '<span style="color:#9aa0c4;font-size:14px;margin-top:2px">\u203A</span></div>';
       }).join('') +
     '</div></div>';
 
@@ -1005,6 +1052,46 @@ function switchToTab(id) {
   );
   showTab(id, btn);
 }
+// Drill from a watch item to the specific section that explains it (declines, coordination, scorecards)
+function drillToSection(dept, tab, section) {
+  selectDept(dept);
+  switchToTab(tab);
+  setTimeout(function(){
+    var panelId = tab === 'metrics' ? 'tab-metrics' : tab === 'engagement' ? 'tab-engagement' : 'tab-overview';
+    var sec = document.querySelector('#' + panelId + ' [data-section="' + section + '"]');
+    if (sec) {
+      sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      sec.classList.add('drill-flash');
+      setTimeout(function(){ sec.classList.remove('drill-flash'); }, 1800);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, 140);
+}
+// Drill from a rigor role straight to that department's Interview skill coverage, filtered to that role
+function drillToSkillCoverage(dept, role) {
+  selectDept(dept);
+  switchToTab('engagement');
+  setTimeout(function(){
+    var sec = document.querySelector('#tab-engagement [data-section="Interview skill coverage \u00b7 BrightHire"]');
+    if (sec) {
+      // Activate the specific role tab, if it exists
+      if (role) {
+        var roleId = 'sk-' + role.replace(/[^a-zA-Z0-9]/g, '-');
+        try { showSkillsRole('skills-tab-group', roleId); } catch(e){}
+        // flash the active role panel
+        var panel = document.getElementById(roleId);
+        if (panel) {
+          panel.classList.add('drill-flash');
+          setTimeout(function(){ panel.classList.remove('drill-flash'); }, 1800);
+        }
+      }
+      sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, 140);
+}
 // Signals filter: "all" shows everything, "attention" hides the positive/process-health zone
 function setSignalFilter(mode) {
   document.querySelectorAll('.sig-tab').forEach(function(b){
@@ -1012,6 +1099,13 @@ function setSignalFilter(mode) {
   });
   var body = document.querySelector('.dark-body');
   if (body) body.classList.toggle('attention-mode', mode === 'attention');
+}
+function toggleDeclineNames(rid){
+  var d = document.getElementById(rid), a = document.getElementById('arw-'+rid);
+  if (!d) return;
+  var open = d.style.display !== 'none';
+  d.style.display = open ? 'none' : 'block';
+  if (a) a.textContent = open ? '\u203A who' : '\u2039 hide';
 }
 function toggleDeptRow(rid){
   var d = document.getElementById(rid), c = document.getElementById('car-' + rid);
@@ -1675,13 +1769,26 @@ function renderOverview(data) {
   //    Engagement mirrors: Scorecard pills · Dept panel size · Load concentration · BrightHire pills.
   //    Metrics mirrors: Interview changes · Who drove the changes · Total declines.
   const GREEN = '#0f6e56', AMBER = '#b45309', RED = '#991b1b', NEUTRAL = 'var(--dusk)', GRAY = '#9ca3af';
-  const cval = (color, text) => '<span style="color:' + color + '">' + text + '</span>';
-  const glanceCard = (label, valueHtml, subHtml) =>
-    '<div style="background:var(--surface-2,#f7f8fa);border-radius:10px;padding:13px;display:flex;flex-direction:column;gap:3px">' +
-      '<div style="font-size:11px;color:var(--text-secondary)">' + label + '</div>' +
-      '<div style="font-size:21px;font-weight:600;line-height:1.1">' + valueHtml + '</div>' +
-      '<div style="font-size:11px;color:#9ca3af">' + (subHtml || '') + '</div>' +
+  // cval tags the value with its status color AND remembers the color for the pill.
+  let _lastColor = NEUTRAL;
+  const cval = (color, text) => { _lastColor = color; return '<span style="color:' + color + '">' + text + '</span>'; };
+  const statusPill = (color) => {
+    if (color === GREEN) return '<span class="ds-pill ds-ok">ON TRACK</span>';
+    if (color === AMBER) return '<span class="ds-pill ds-watch">WATCH</span>';
+    if (color === RED)   return '<span class="ds-pill ds-att">NEEDS ATTENTION</span>';
+    return '';
+  };
+  const glanceCard = (label, valueHtml, subHtml) => {
+    var pill = statusPill(_lastColor);
+    return '<div class="ds-glass">' +
+      '<div class="ds-glass-glow"></div>' +
+      '<div style="position:relative;display:flex;justify-content:space-between;align-items:center;gap:8px">' +
+        '<div style="font-size:12px;color:#5a5f7a">' + label + '</div>' + pill +
+      '</div>' +
+      '<div style="position:relative;font-size:26px;font-weight:700;line-height:1.05;margin:9px 0 8px">' + valueHtml + '</div>' +
+      '<div style="position:relative;font-size:11.5px;color:#8b90a8">' + (subHtml || '') + '</div>' +
     '</div>';
+  };
   const groupHeader = (title, tabId) =>
     '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">' +
       '<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary)">' + title + '</span>' +
@@ -1745,22 +1852,37 @@ function renderOverview(data) {
   // Mirrors the "Total declines" card on Interviewer decline behavior
   metCards.push(glanceCard('Total declines', cval(declinesTotal === 0 ? GREEN : NEUTRAL, fmt(declinesTotal)),
     declinesTotal === 0 ? 'no declines this period' : declAsIntPctS + '% of all interviews'));
-  const cardGrid = arr => '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">' + arr.join('') + '</div>';
-  let qagBody = '';
-  if (engCards.length) {
-    qagBody += groupHeader('Interviewer Engagement', 'engagement') + cardGrid(engCards) + '<div style="height:22px"></div>';
-  }
-  if (metCards.length) {
-    qagBody += groupHeader('Interview Metrics', 'metrics') + cardGrid(metCards);
-  }
+  const cardGrid = arr => '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px">' + arr.join('') + '</div>';
+  // Status roll-up counter (derive from the pills present across all cards)
+  const allCardsHtml = engCards.join('') + metCards.join('');
+  const cntAtt = (allCardsHtml.match(/NEEDS ATTENTION/g) || []).length;
+  const cntWatch = (allCardsHtml.match(/>WATCH</g) || []).length;
+  const cntOk = (allCardsHtml.match(/ON TRACK/g) || []).length;
+  const statusCounter = '<div style="text-align:right;font-size:12px;color:#5a5f7a;margin-bottom:14px">' +
+    (cntAtt ? '<span style="color:#a3352a">\u25CF</span> ' + cntAtt + ' needs attention \u00b7 ' : '') +
+    (cntWatch ? '<span style="color:#a8641a">\u25CF</span> ' + cntWatch + ' notable \u00b7 ' : '') +
+    '<span style="color:#1e5aa8">\u25CF</span> ' + cntOk + ' on track</div>';
+  // Two luminous surfaces, each holding a group of glass cards
+  const surface = (title, tabId, gridHtml) =>
+    '<div class="ds-surface">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:0 2px">' +
+        '<span style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#5a5f7a">' + title + '</span>' +
+        '<button onclick="switchToTab(\'' + tabId + '\')" style="font-size:12px;color:#5a4fc4;font-weight:700;background:none;border:none;cursor:pointer;padding:0;white-space:nowrap">Details \u203A</button>' +
+      '</div>' + gridHtml +
+    '</div>';
+  const surfacesHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">' +
+    (engCards.length ? surface('Interviewer Engagement', 'engagement', cardGrid(engCards)) : '') +
+    (metCards.length ? surface('Interview Metrics', 'metrics', '<div style="display:flex;flex-direction:column;gap:12px">' + metCards.join('') + '</div>') : '') +
+    '</div>';
+  let qagBody = surfacesHtml;
   // Quarterly context — always shown; editable inline (temporary, for live use)
-  qagBody += '<div style="padding:18px 0 2px 0;margin-top:6px;border-top:1px solid var(--border)">' +
-    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-top:14px">' +
+  qagBody += '<div style="padding:18px 0 2px 0;margin-top:16px">' +
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
     '<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary)">Quarterly Context</span>' +
     '<span style="font-size:11px;color:#9ca3af;font-style:italic">— edits are temporary; add to config.yaml to persist</span>' +
     '</div>' +
     '<div id="' + qNotesId + '" contenteditable="true" ' +
-    'style="font-size:13px;color:' + (qNotes ? 'var(--dusk)' : '#9ca3af') + ';line-height:1.65;white-space:pre-wrap;min-height:48px;padding:10px 12px;border-radius:8px;border:1px dashed #d1d9e6;background:#fafbfc;outline:none;cursor:text" ' +
+    'style="font-size:13px;color:' + (qNotes ? 'var(--dusk)' : '#9ca3af') + ';line-height:1.65;white-space:pre-wrap;min-height:48px;padding:10px 12px;border-radius:8px;border:1px dashed #c3c0dc;background:rgba(255,255,255,.4);outline:none;cursor:text" ' +
     'data-placeholder="Click here to add quarterly context — e.g. key hiring themes, org changes, or anything that adds colour to the numbers above." ' +
     'onfocus="if(this.dataset.empty){this.style.color=\'var(--dusk)\';this.textContent=\'\';delete this.dataset.empty}" ' +
     'onblur="if(!this.textContent.trim()){this.style.color=\'#9ca3af\';this.textContent=this.dataset.placeholder;this.dataset.empty=\'1\'}">' +
@@ -1770,21 +1892,31 @@ function renderOverview(data) {
   if (!qNotes) {
     qagBody = qagBody.replace('id="' + qNotesId + '"', 'id="' + qNotesId + '" data-empty="1"');
   }
-  const qagHero = '<div style="text-align:right;flex-shrink:0;padding-left:20px">' +
-      '<div style="font-size:30px;font-weight:700;line-height:1;color:var(--dusk)">' + fmt(interviewsCompleted(data)) + '</div>' +
-      '<div style="font-size:11px;color:var(--text-secondary);margin-top:3px">interviews completed</div>' +
-    '</div>';
-  const qagHtml = '<section class="section-shell" data-section="Quarter at a glance">' +
-      '<div class="section-shell-header" style="display:flex;justify-content:space-between;align-items:center">' +
-        '<div>' +
-          '<div class="section-shell-title">Quarter at a glance</div>' +
-          '<div class="section-shell-subtitle">Headline numbers from across the report — click Details to see insights.</div>' +
-        '</div>' +
-        qagHero +
+  // Dark atmospheric hero with inset elevated KPI module
+  const heroStats = '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;padding-left:8px;position:relative">' +
+      '<div style="display:flex;gap:28px;flex-wrap:wrap">' +
+        '<div><div style="font-size:23px;font-weight:700;color:#e7e4f5">' + fmt(s.active_interviewers) + '</div><div style="font-size:11px;color:#8b90b8">active interviewers</div></div>' +
+        (lbPanel.length ? '<div><div style="font-size:23px;font-weight:700;color:#e7e4f5">' + fmt(lbPanel.length) + '</div><div style="font-size:11px;color:#8b90b8">on the panel</div></div>' : '') +
+        '<div><div style="font-size:23px;font-weight:700;color:#e7e4f5">' + (D.meta.quarter || 'H1') + '</div><div style="font-size:11px;color:#8b90b8">' + (D.meta.period || '') + '</div></div>' +
       '</div>' +
-      '<div class="section-shell-body">' + qagBody + '</div>' +
-    '</section>';
-  // ── Assemble Summary: glance card-wall → roles ──
+      '<div style="font-size:12.5px;color:#8b90b8;line-height:1.5;max-width:440px">The top signals for this department are below — engagement on the left, interview metrics on the right.</div>' +
+    '</div>';
+  const heroHtml = '<div class="ds-hero">' +
+      '<div class="ds-hero-glow-a"></div><div class="ds-hero-glow-b"></div>' +
+      '<div style="position:relative;display:flex;align-items:stretch;gap:24px;flex-wrap:wrap">' +
+        '<div class="ds-hero-kpi">' +
+          '<div class="ds-hero-kpi-glow"></div>' +
+          '<div style="position:relative">' +
+            '<div style="font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#9aa0c8;margin-bottom:14px">' + (currentDept || '') + ' \u00b7 ' + (D.meta.quarter || '') + '</div>' +
+            '<div style="font-size:60px;font-weight:800;color:#fff;line-height:.95;letter-spacing:-2px" data-count="' + interviewsCompleted(data) + '">' + fmt(interviewsCompleted(data)) + '</div>' +
+            '<div style="font-size:13px;color:#aab0d4;margin-top:10px">interviews completed</div>' +
+          '</div>' +
+        '</div>' + heroStats +
+      '</div>' +
+    '</div>';
+  const qagHtml = statusCounter + heroHtml +
+    '<div class="ds-body-surface">' + qagBody + '</div>';
+  // ── Assemble Summary: hero + surfaces → roles ──
   let html = qagHtml + rolesHtml;
   // ── 3. Top & Flagged Interviewers ───────────────────────────
   if (all.length) {
@@ -2390,18 +2522,39 @@ function renderMetrics(data) {
           '<div style="font-size:24px;font-weight:700;color:var(--dusk)">' + dDecliners.length + ' <span style="font-size:14px;font-weight:400">of ' + activeCount + '</span></div>' +
           '<div style="font-size:12px;color:var(--text-secondary)">' + declinerShare + '% of active interviewers declined at least once</div>' +
         '</div>' +
-        // Late declines
-        '<div style="background:' + (coordLate>0?'#fff7ed':'#fafafa') + ';border:1px solid ' + (coordLate>0?'#fed7aa':'var(--border)') + ';border-radius:8px;padding:14px">' +
-          '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px">Late declines (&lt;24 hr)</div>' +
-          '<div style="font-size:24px;font-weight:700;color:' + (coordLate>0?'#b45309':'var(--lawn)') + '">' + coordLate + '</div>' +
-          '<div style="font-size:12px;color:var(--text-secondary)">' + latePct + '% of all declines</div>' +
-        '</div>' +
-        // Very late
-        '<div style="background:' + (coordVeryLate>0?'#fff1f2':'#fafafa') + ';border:1px solid ' + (coordVeryLate>0?'#fecdd3':'var(--border)') + ';border-radius:8px;padding:14px">' +
-          '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px">Very late (&lt;4 hr)</div>' +
-          '<div style="font-size:24px;font-weight:700;color:' + (coordVeryLate>0?'#991b1b':'var(--lawn)') + '">' + coordVeryLate + '</div>' +
-          '<div style="font-size:12px;color:var(--text-secondary)">' + veryLatePct + '% of all declines</div>' +
-        '</div>' +
+        // Late declines (expandable if lead-time detail exists)
+        (function(){
+          var lt = (DECLINE_LEADTIME[currentDept] || {}).late;
+          var count = lt ? lt.total : coordLate;
+          var pct = dTotal ? Math.round(count/dTotal*100) : 0;
+          var rid = 'late-' + (currentDept||'d').replace(/[^a-zA-Z0-9]/g,'');
+          var head = '<div style="background:' + (count>0?'#fff7ed':'#fafafa') + ';border:1px solid ' + (count>0?'#fed7aa':'var(--border)') + ';border-radius:8px;padding:14px' + (lt?';cursor:pointer' : '') + '"' + (lt?' onclick="toggleDeclineNames(\''+rid+'\')"':'') + '>' +
+            '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">Late declines (&lt;24 hr)' + (lt?'<span id="arw-'+rid+'" style="color:#b45309;font-size:12px">\u203A who</span>':'') + '</div>' +
+            '<div style="font-size:24px;font-weight:700;color:' + (count>0?'#b45309':'var(--lawn)') + '">' + count + '</div>' +
+            '<div style="font-size:12px;color:var(--text-secondary)">' + pct + '% of all declines</div>' +
+            (lt ? '<div id="'+rid+'" style="display:none;margin-top:10px;border-top:1px solid #fed7aa;padding-top:8px">' +
+              lt.people.map(function(p){return '<div style="display:flex;justify-content:space-between;font-size:12px;color:#7a3f0a;padding:3px 0"><span>'+p[0]+'</span><span style="font-weight:700">'+p[1]+'</span></div>';}).join('') +
+              (lt.ones>0 ? '<div style="display:flex;justify-content:space-between;font-size:12px;color:#a9855a;padding:3px 0;font-style:italic"><span>+ '+lt.ones+' others</span><span>1 each</span></div>' : '') +
+              '<div style="font-size:10px;color:#b98a56;font-style:italic;margin-top:6px">From decline lead-time report</div></div>' : '') +
+          '</div>';
+          return head;
+        })() +
+        // Very late (expandable if lead-time detail exists)
+        (function(){
+          var lt = (DECLINE_LEADTIME[currentDept] || {}).vlate;
+          var count = lt ? lt.total : coordVeryLate;
+          var pct = dTotal ? Math.round(count/dTotal*100) : 0;
+          var rid = 'vlate-' + (currentDept||'d').replace(/[^a-zA-Z0-9]/g,'');
+          return '<div style="background:' + (count>0?'#fff1f2':'#fafafa') + ';border:1px solid ' + (count>0?'#fecdd3':'var(--border)') + ';border-radius:8px;padding:14px' + (lt?';cursor:pointer':'') + '"' + (lt?' onclick="toggleDeclineNames(\''+rid+'\')"':'') + '>' +
+            '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">Very late (&lt;4 hr)' + (lt?'<span id="arw-'+rid+'" style="color:#991b1b;font-size:12px">\u203A who</span>':'') + '</div>' +
+            '<div style="font-size:24px;font-weight:700;color:' + (count>0?'#991b1b':'var(--lawn)') + '">' + count + '</div>' +
+            '<div style="font-size:12px;color:var(--text-secondary)">' + pct + '% of all declines</div>' +
+            (lt ? '<div id="'+rid+'" style="display:none;margin-top:10px;border-top:1px solid #fecdd3;padding-top:8px">' +
+              lt.people.map(function(p){return '<div style="display:flex;justify-content:space-between;font-size:12px;color:#7a1420;padding:3px 0"><span>'+p[0]+'</span><span style="font-weight:700">'+p[1]+'</span></div>';}).join('') +
+              (lt.ones>0 ? '<div style="display:flex;justify-content:space-between;font-size:12px;color:#b07a82;padding:3px 0;font-style:italic"><span>+ '+lt.ones+' others</span><span>1 each</span></div>' : '') +
+              '<div style="font-size:10px;color:#c07a84;font-style:italic;margin-top:6px">From decline lead-time report</div></div>' : '') +
+          '</div>';
+        })() +
       '</div>';
 
     // High-decliner table: ≥35% decline rate
