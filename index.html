@@ -2076,6 +2076,28 @@ body{background:linear-gradient(180deg,#e8ecf3 0%,#eef1f5 100%)!important;backgr
 .ivp.focus .ivp-inst>div.lit{background:rgba(255,255,255,.06);border-radius:14px}
 @media (max-width:520px){.ivp-body{padding:4px 16px 24px 40px}.ivp-flow::before{left:-19px}.ivp-node{left:-23px}.ivp-inst{grid-template-columns:repeat(2,minmax(0,1fr))}.ivp-inst>div:nth-child(3)::before{display:none}.ivp-sr{grid-template-columns:112px minmax(0,1fr) 28px}.ivp-lh{grid-template-columns:80px minmax(0,1fr) 14px}}
 @media (prefers-reduced-motion:reduce){.ivp *{transition:none!important}}
+
+/* No numbered prefixes on tabs or section headers */
+.tab-btn small,.eng-head-idx{display:none!important}
+
+/* Unsubmitted scorecards: same amber pane, collapsed by default */
+.eng-due-tog{appearance:none;background:none;border:0;padding:0;margin:0;width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;text-align:left;color:inherit;font:inherit}
+.eng-due-arrow{font-size:20px;line-height:1;color:#FCEBBA;opacity:.75;transition:transform .4s cubic-bezier(.2,.8,.2,1),opacity .3s}
+.eng-due-tog:hover .eng-due-arrow{opacity:1}
+.eng-due-pane.open .eng-due-arrow{transform:rotate(90deg)}
+.eng-due-tog:focus-visible{outline:2px solid rgba(252,235,186,.6);outline-offset:6px;border-radius:8px}
+.eng-due-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s cubic-bezier(.2,.8,.2,1)}
+.eng-due-body>div{overflow:hidden;min-height:0}
+.eng-due-pane.open .eng-due-body{grid-template-rows:1fr}
+
+.win-sub{display:block;font-size:11px;line-height:1.35;color:rgba(215,240,230,.62);margin-top:2px;font-weight:400}
+
+/* Metrics: quiet-department decline detail bar */
+.obs-quiet-detail{margin:22px 0 18px;border-radius:14px;background:rgba(10,8,30,.18);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.obs-quiet-detail .eng-coll-inner{padding:6px 16px 16px}
+.obs-quiet-detail .eng-coll-btn{padding:13px 16px;width:100%}
+/* Contribution spotlight card sits inside its box instead of breaking out past the edge */
+.rs-spot-wrap{margin:14px 0 16px!important}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
@@ -2094,7 +2116,7 @@ body{background:linear-gradient(180deg,#e8ecf3 0%,#eef1f5 100%)!important;backgr
       <div class="iv-wmcard" id="iv-wmcard" role="tooltip">
         <div class="k">Agentic analytics</div>
         <div class="t">An agentic analytics experience for talent operations.</div>
-        <div class="b">InnerView reads interview, scheduling, scorecard and BrightHire signals across every department, connects them, and surfaces what deserves a closer look.</div>
+        <div class="b">InnerView consolidates interview data from ModernLoop, Greenhouse and BrightHire into one connected experience, surfacing patterns, behaviors and insights.</div>
         <div class="net"><span>ModernLoop</span><span>Greenhouse</span><span>BrightHire</span></div>
       </div>
     </div>
@@ -2835,7 +2857,7 @@ function ivdPerson(name) {
     '<div class="ivp-body"><div class="ivp-flow">' +
       '<div class="ivp-tr"><span class="ivp-node"></span><span class="ivp-k">Summary</span><div class="ivp-id"><div class="ivp-mono"' + (m.mods.length ? ' title="Ring: one segment per ModernLoop module"' : '') + '>' + ring + esc(initials) + '</div><div><h2 class="ivp-nm">' + esc(name) + '</h2><div class="ivp-role">' + role + '</div></div></div>' +
         (TT ? '<div class="ivp-tags"><span class="ivp-tag ' + TT[0] + '"><i></i>' + TT[1] + '</span></div>' : '') + '</div>' +
-      '<div class="ivp-tr ai"><span class="ivp-node"></span><span class="ivp-k">Interpretation</span><div class="ivp-syn"><div class="ivp-sk">' + IVP_SPARK + 'InnerView read</div><p class="ivp-h">' + m.head + '</p>' + (m.srcs.length ? '<div class="ivp-src">Read from ' + ivpAnd(m.srcs) + '</div>' : '') + '</div>' +
+      '<div class="ivp-tr ai"><span class="ivp-node"></span><span class="ivp-k">Interpretation</span><div class="ivp-syn"><div class="ivp-sk">' + IVP_SPARK + 'AI Insights</div><p class="ivp-h">' + m.head + '</p>' + (m.srcs.length ? '<div class="ivp-src">Read from ' + ivpAnd(m.srcs) + '</div>' : '') + '</div>' +
         (finds ? '<div style="margin-top:6px">' + finds + '</div>' : '') + '</div>' +
       (hasSignals ? '<div class="ivp-tr"><span class="ivp-node"></span><span class="ivp-k">Signals</span>' + inst + '</div>' : '') +
       '<div class="ivp-tr"><span class="ivp-node"></span><span class="ivp-k">Context</span>' + ledger + '</div>' +
@@ -3267,8 +3289,14 @@ function renderAllDepartments() {
   let scSub = 0, scDue = 0;
   depts.forEach(name => { const v = IV.scorecards(sel(name)); scSub += v.submitted; scDue += v.due; });
   const scComplete = (scSub + scDue) ? Math.round(scSub / (scSub + scDue) * 100) : null;
-  if (scComplete != null && scComplete >= 90)
-    wins.push('<b>' + scComplete + '% of scorecards</b> submitted \u2014 ' + fmt(scDue) + ' still due across the org');
+  if (typeof IV_TRAIN !== 'undefined' && typeof IV_MODULES !== 'undefined') {
+    const full = Object.values(IV_TRAIN).filter(s => s === 'Fully Trained').length;
+    const mods = Object.values(IV_MODULES), shadowing = mods.filter(m => m.some(x => x[2] !== 'Trained')).length;
+    const oneAway = mods.filter(m => m.some(x => x[2] !== 'Trained' && x[3] === 1)).length;
+    if (shadowing)
+      wins.push('<b>The interviewer bench is growing:</b> ' + fmt(shadowing) + ' people actively shadowing' +
+        (oneAway ? '<span class="win-sub">' + oneAway + ' are one session from trained, so new panel capacity is close</span>' : ''));
+  }
   // 2. On-time interview starts — each scored interviewer counted once, even if they interview for several departments
   const orgBh = {};
   depts.forEach(name => (sel(name).bh_quality || []).forEach(r => { const ex = orgBh[r.name]; if (!ex || (r.count || 0) > (ex.count || 0)) orgBh[r.name] = r; }));
@@ -3277,9 +3305,11 @@ function renderAllDepartments() {
   if (onTimeAvg != null && onTimeAvg >= 85)
     wins.push('<b>' + onTimeAvg + '% on-time</b> interview starts across ' + onTimeVals.length + ' scored interviewers');
   // 3. Departments with zero declines (real volume)
-  const zeroDeclDepts = rows.filter(r => r.declines === 0 && r.completed >= 20).length;
-  if (zeroDeclDepts >= 1)
-    wins.push('<b>' + zeroDeclDepts + ' department' + (zeroDeclDepts !== 1 ? 's' : '') + '</b> ran 20+ interviews with zero declines');
+  const gtm = rows.filter(r => r.name === 'Sales' || r.name === 'Account Operations');
+  const gtmInt = gtm.reduce((s, r) => s + (r.completed || 0), 0), gtmDec = gtm.reduce((s, r) => s + (r.declines || 0), 0);
+  if (gtm.length === 2 && gtmInt >= 40 && gtmDec / (gtmInt + gtmDec) <= 0.02)
+    wins.push('<b>Sales + Account Operations stand out on reliability:</b> ' + fmt(gtmInt) + ' interviews, ' + (gtmDec === 0 ? 'no declines' : gtmDec === 1 ? 'one decline' : gtmDec + ' declines') +
+      '<span class="win-sub">' + Math.round(gtmInt / (gtmInt + gtmDec) * 100) + '% of interview commitments kept</span>');
   const winsHtml = wins.length
     ? wins.map(w => '<div style="display:flex;gap:9px;align-items:flex-start"><span style="color:#5fe0ad;font-weight:800;flex-shrink:0">\u2713</span><span style="font-size:12.5px;line-height:1.45;color:#d7f0e6">' + w.replace(/<b>/g, '<b style="color:#ffffff;font-weight:700">') + '</span></div>').join('')
     : '<div style="font-size:12.5px;font-style:italic;color:#9fd9c4">Wins will surface here as the data grows.</div>';
@@ -3357,7 +3387,7 @@ function renderAllDepartments() {
   const coachTip = 'Based on BrightHire quality data for interviewers with ' + RULES.BH_MIN + '+ recorded interviews — a sample, not every interviewer. These signals haven’t been shared with interviewers or built into training yet, so this isn’t a performance judgment — it’s a directional read of where things stand today.';
   // Recommendation only when the data shows a shared pattern (2+ meaningful themes).
   const sharedLine = oc.meaningful.length >= 2
-    ? '<div class="hub-info-line" tabindex="0" data-tip="' + ('Top BrightHire signals below the bar: ' + themes.map(([lbl, c]) => lbl + ' (' + c + ')').join(', ') + '. Shared themes: ' + oc.meaningful.map(t => BH_THEMES[t.id].name + ' (' + t.reach + ' of ' + coachFlagged + ')').join(', ') + '. Future iterations of this report aim to connect these signals with MOCKSTAR, the team’s AI-driven interviewer training program.').replace(/"/g, '&quot;') + '" style="font-size:11px;color:#e6bf72;background:rgba(230,191,114,.1);border-radius:8px;padding:8px 11px;margin-top:12px;line-height:1.4;cursor:help;position:relative">Directionally, the shared gaps are interviewing fundamentals (' + oc.meaningful.map(t => BH_THEMES[t.id].short).join(', ') + ') — a fit for one focused refresher, and a natural tie-in to MOCKSTAR ahead. <span style="opacity:.6">ⓘ</span></div>'
+    ? '<div class="hub-info-line" tabindex="0" data-tip="' + ('Top BrightHire signals below the bar: ' + themes.map(([lbl, c]) => lbl + ' (' + c + ')').join(', ') + '. Shared themes: ' + oc.meaningful.map(t => BH_THEMES[t.id].name + ' (' + t.reach + ' of ' + coachFlagged + ')').join(', ') + '. Future iterations of this report aim to connect these signals with MOCKSTAR, the team’s AI-driven interviewer training program.').replace(/"/g, '&quot;') + '" style="font-size:11px;color:#e6bf72;background:rgba(230,191,114,.1);border-radius:8px;padding:8px 11px;margin-top:12px;line-height:1.4;cursor:help;position:relative">Directionally, the shared gaps are interviewing fundamentals (' + oc.meaningful.map(t => BH_THEMES[t.id].short).join(', ') + '), foundational habits that MOCKSTAR’s AI training will reiterate alongside its more advanced content. <span style="opacity:.6">ⓘ</span></div>'
     : '';
   const coachingCard = coachScored > 0
     ? '<div class="dsig-card">' +
@@ -3376,7 +3406,7 @@ function renderAllDepartments() {
       '</div>' +
       '<div class="att-focus" style="border-radius:10px">' +
       '<div style="font-size:12.5px;color:#e7ebf5;line-height:1.55">' + (coachFlagged
-        ? '<b style="font-weight:700;color:#fff">' + flagPct + '%</b> would benefit from coaching' + (topPlain.length ? ' — most often on <b style="font-weight:600;color:#fff">' + joinAnd(topPlain) + '</b>.' : '.')
+        ? '<b style="font-weight:700;color:#fff">' + flagPct + '%</b> have a watch area' + (topPlain.length ? ' — most often on <b style="font-weight:600;color:#fff">' + joinAnd(topPlain) + '</b>.' : '.')
         : 'Every scored interviewer is meeting the bar this period.') + '</div>' +
       sharedLine +
       '</div>' +
@@ -3733,12 +3763,12 @@ function engagementInsights(dept, data) {
   // 1. Interview quality (BrightHire)
   if (ct.all.length) {
     if (ct.status === 'no-sample') {
-      items.push({ tag: 'Quality', color: GRAY, title: 'Too few recordings to judge quality',
-        body: ct.all.length + ' interviewer' + (ct.all.length !== 1 ? 's' : '') + ' recorded on BrightHire, but none reached ' + RULES.BH_MIN + ' interviews — not enough for a reliable read yet.' });
+      items.push({ tag: 'Quality', color: GRAY, title: 'Not enough recordings yet for a read',
+        body: ct.all.length + ' interviewer' + (ct.all.length !== 1 ? 's' : '') + ' recorded on BrightHire; none has reached ' + RULES.BH_MIN + ' recordings yet.' });
     } else if (ct.N === 0) {
       const strong = ct.scored.filter(r => (r.overall || 0) >= 90).length;
-      items.push({ tag: 'Quality', color: GRN, title: 'Interview quality is on track',
-        body: (ct.scored.length === 1 ? 'The one interviewer with enough recordings meets' : 'All ' + ct.scored.length + ' interviewers with enough recordings meet') + ' the bar' + (strong ? ', ' + strong + ' of them at 90 or above' : '') + '. No intervention suggested.' });
+      items.push({ tag: 'Quality', color: GRN, title: 'Interview quality is strong',
+        body: (ct.scored.length === 1 ? 'The one interviewer with enough recordings meets' : 'All ' + ct.scored.length + ' interviewers with enough recordings meet') + ' the bar' + (strong ? ', ' + strong + ' of them at 90 or above' : '') + '.' });
     } else {
       const cr = coachRead(dept, data);
       items.push({ tag: 'Quality', color: AMB, title: (cr.headline || 'Below-bar results are individual').replace(/\.$/, ''),
@@ -3750,7 +3780,7 @@ function engagementInsights(dept, data) {
   if (sc.timed.length >= 3) {
     if (sc.slaPct >= RULES.SLA_GOOD && !sc.due) {
       items.push({ tag: 'Scorecards', color: GRN, title: 'Scorecards are landing on time',
-        body: sc.slaPct + '% of interviewers average inside the 3-day window and none are outstanding.' });
+        body: sc.slaPct + '% of interviewers average inside the 3-day window, with none outstanding. Strong follow-through.' });
     } else {
       const parts = [];
       if (sc.over.length) parts.push(sc.over.length + ' of ' + sc.timed.length + ' interviewers average past 3 days' +
@@ -3758,8 +3788,8 @@ function engagementInsights(dept, data) {
       if (sc.due) parts.push(sc.due + ' scorecard' + (sc.due !== 1 ? 's are' : ' is') + ' still outstanding');
       const sev = (sc.slaPct < RULES.SLA_ATTN || sc.due >= 10) ? RD : AMB;
       items.push({ tag: 'Scorecards', color: sev,
-        title: sc.slaPct < RULES.SLA_GOOD ? 'Scorecard timing is slipping' : 'Timing holds; some scorecards are outstanding',
-        body: parts.join(', and ') + '.' + (sc.slow.length ? ' A direct nudge to the slowest submitters would move the average most.' : '') + (sc.due ? ' Closing open scorecards at debriefs keeps decisions documented.' : '') });
+        title: sc.slaPct < RULES.SLA_GOOD ? 'Scorecard timing has room to tighten' : 'Timing holds; a few scorecards are still open',
+        body: parts.join(', and ') + '.' });
     }
   } else if (sc.hasAny) {
     items.push({ tag: 'Scorecards', color: GRAY, title: 'Scorecard timing is thinly sampled',
@@ -3771,18 +3801,19 @@ function engagementInsights(dept, data) {
   if (pn.active.length >= RULES.CONC_MIN_ACTIVE) {
     const untapped = pn.untapped.length;
     if (pn.conc > RULES.CONC_WATCH) {
-      items.push({ tag: 'Capacity', color: AMB, title: 'Interview load is concentrated',
-        body: 'The busiest ' + pn.topN + ' of ' + pn.active.length + ' active panelists ran ' + pn.conc + '% of interviews' + (untapped ? ', while ' + untapped + ' panelists ran none' : '') + '. Spreading loops to the bench would reduce key-person risk.' });
+      const smallPanel = pn.active.length < 10;
+      items.push({ tag: 'Capacity', color: smallPanel ? GRAY : AMB, title: smallPanel ? 'A couple of interviewers carry most loops' : 'Interview load is concentrated',
+        body: 'The busiest ' + pn.topN + ' of ' + pn.active.length + ' active panelists ran ' + pn.conc + '% of interviews' + (smallPanel ? ', which is common for a small panel' + (untapped ? '; ' + untapped + ' more panelists have room on the bench' : '') : (untapped ? ', while ' + untapped + ' panelists ran none' : '')) + '.' });
     } else if (pn.util !== null && pn.util < 50 && untapped >= 5) {
-      items.push({ tag: 'Capacity', color: GRAY, title: 'Spare bench on the panel',
-        body: untapped + ' of ' + pn.roster.length + ' panelists ran no interviews (' + pn.util + '% utilization), while load among active panelists is shared (top ' + pn.topN + ' ran ' + pn.conc + '%). Spare capacity, not a problem.' });
+      items.push({ tag: 'Capacity', color: GRAY, title: 'Plenty of room on the bench',
+        body: untapped + ' of ' + pn.roster.length + ' panelists ran no interviews this quarter, so most have capacity to spare if hiring picks up. Load among active panelists is shared (top ' + pn.topN + ' ran ' + pn.conc + '%).' });
     } else {
-      items.push({ tag: 'Capacity', color: GRN, title: 'Load is reasonably shared',
-        body: 'The busiest ' + pn.topN + ' of ' + pn.active.length + ' active panelists ran ' + pn.conc + '% of interviews' + (pn.util !== null ? ', with ' + pn.util + '% of the panel active' : '') + '.' });
+      items.push({ tag: 'Capacity', color: GRN, title: 'Load is well shared',
+        body: 'The work is spread across the panel rather than resting on a few people: the busiest ' + pn.topN + ' of ' + pn.active.length + ' active panelists ran ' + pn.conc + '% of interviews' + (pn.util !== null ? ', with ' + pn.util + '% of the panel active' : '') + '.' });
     }
   } else if (pn.active.length) {
-    items.push({ tag: 'Capacity', color: GRAY, title: 'Panel too small to read load balance',
-      body: pn.active.length + ' interviewer' + (pn.active.length !== 1 ? 's' : '') + ' ran interviews this period — too few to judge concentration.' });
+    items.push({ tag: 'Capacity', color: GRAY, title: 'A small panel this quarter',
+      body: pn.active.length + ' interviewer' + (pn.active.length !== 1 ? 's' : '') + ' ran this quarter’s interviews.' });
   }
 
   // 4. Skill coverage and BrightHire capture
@@ -3799,13 +3830,12 @@ function engagementInsights(dept, data) {
     const parts = [];
     if (recurring) parts.push('“' + recurring[0] + '” goes largely unassessed across ' + recurring[1].length + ' roles');
     else if (worst) parts.push('“' + worst[0] + '” sits at ' + Math.min(...worst[1].map(v => v.pct)) + '% in ' + worst[1][0].role);
-    if (ghost.length) parts.push(ghost.length + ' open role' + (ghost.length !== 1 ? 's have' : ' has') + ' no BrightHire coverage this period');
+    if (ghost.length) parts.push(ghost.length + ' open role' + (ghost.length !== 1 ? 's weren\u2019t' : ' wasn\u2019t') + ' recorded on BrightHire this period');
     if (parts.length) {
-      const tails = [];
-      if (recurring || worst) tails.push('mapping the under-covered skills directly into scorecards helps make sure they get discussed');
-      if (ghost.length) tails.push('running those loops on BrightHire would bring them into this view');
-      items.push({ tag: 'Coverage', color: AMB, title: 'Skill coverage has blind spots',
-        body: parts.join(', and ') + '. ' + tails.join('; ').replace(/^./, c => c.toUpperCase()) + '.' });
+      const allSk = [].concat.apply([], skillsArr.map(r => r.skills || [])), avgCov = allSk.length ? Math.round(allSk.reduce((s2, x) => s2 + (x.pct || 0), 0) / allSk.length) : 0;
+      const mostly = avgCov >= 70;
+      items.push({ tag: 'Coverage', color: mostly ? GRAY : AMB, title: mostly ? 'Most skills are covered; a few aren\u2019t coming up yet' : 'Skill coverage has blind spots',
+        body: (mostly ? 'Interviews cover ' + avgCov + '% of JD skills on average. ' : '') + parts.join(', and ').replace(/^./, c => c.toUpperCase()) + '.' });
     } else {
       items.push({ tag: 'Coverage', color: GRN, title: 'JD skills are well covered',
         body: 'Every skill on the ' + skillsArr.length + ' analyzed role' + (skillsArr.length !== 1 ? 's' : '') + ' came up in at least half of interviews.' });
@@ -4055,7 +4085,7 @@ function renderOverview(data) {
   engCards.push(bhv.scored.length || bhv.flagged.length
     ? glanceCard('BrightHire quality', cval(bhv.flagged.length > 0 ? AMBER : GREEN, fmt(bhv.flagged.length)),
         bhv.flagged.length > 0
-          ? 'need a closer look · ' + bhv.good.length + ' in good standing'
+          ? 'with watch areas · ' + bhv.good.length + ' in good standing'
           : (bhv.scored.length === 1 ? 'the one scored interviewer is' : 'all ' + bhv.scored.length + ' scored interviewers') + ' in good standing')
     : glanceCard('BrightHire quality', cval(GRAY, '—'), bhv.all.length ? 'no interviewer with ' + RULES.BH_MIN + '+ recordings yet' : 'no BrightHire data this period'));
   // ── Metrics cluster ──
@@ -4105,7 +4135,6 @@ function renderOverview(data) {
         '<div class="sum-read">' + (quietDept
           ? currentDept + ' completed no interviews this period, so the cards below have nothing to measure yet.'
           : 'The headline signals for this department. Select any card to open the section that explains it.') + '</div>' +
-        roll +
       '</div>' +
     '</div>';
   let body = engSection({ idx: '01', label: (currentDept || '') + ' at a glance', tint: 't-slate', color: '#B9C6F0', corners: ['tl', 'tr'], note: D.meta.quarter || '' }, heroBody);
@@ -4346,7 +4375,6 @@ function skillCoverageCard(data, skills) {
       '<div style="position:absolute;inset:0;background:radial-gradient(420px circle at var(--gx,50%) var(--gy,-400px),rgba(255,255,255,.07),transparent 60%);opacity:var(--go,0);transition:opacity .25s cubic-bezier(.2,0,0,1)"></div>' +
     '</div>' +
     '<div style="position:relative;display:flex;align-items:center;gap:14px">' +
-      '<span style="font-size:10px;font-weight:620;letter-spacing:.2em;color:#FAD788">04</span>' +
       '<span style="font-size:10px;font-weight:620;letter-spacing:.22em;text-transform:uppercase;color:#CDD4E6">Interview skill coverage \u00b7 BrightHire</span>' +
       '<span style="flex:1;height:.5px;background:linear-gradient(90deg,rgba(250,215,136,.4),rgba(255,255,255,.06))"></span>' +
       '<span class="eng-chip" tabindex="0" data-pop="'+esc(method)+'" style="padding:4px 9px;border-radius:6px;font-size:11px;letter-spacing:.04em">Method</span>' +
@@ -4457,7 +4485,7 @@ function coachingSignalsSection(dept, data) {
     '<div style="display:flex;align-items:center;gap:22px">' +
       '<div style="text-align:right"><div style="font-size:34px;line-height:1;font-weight:400;letter-spacing:-.05em;color:#D8FBE8;text-shadow:0 0 24px rgba(60,225,150,.4)">'+ct.good.length+'</div><div style="font-size:11px;color:#A8EFC8;margin-top:4px">in good standing</div></div>' +
       '<span class="eng-rule-v" style="height:44px"></span>' +
-      '<div style="text-align:right"><div style="font-size:34px;line-height:1;font-weight:400;letter-spacing:-.05em;color:'+(N?'#FFD6DE':'#CDD4E6')+';text-shadow:'+(N?'0 0 24px rgba(247,140,165,.4)':'none')+'">'+N+'</div><div style="font-size:11px;color:'+(N?'#F7B6C2':'#CDD4E6')+';margin-top:4px">need a closer look</div></div>' +
+      '<div style="text-align:right"><div style="font-size:34px;line-height:1;font-weight:400;letter-spacing:-.05em;color:'+(N?'#FCEBBA':'#CDD4E6')+';text-shadow:'+(N?'0 0 24px rgba(246,191,86,.35)':'none')+'">'+N+'</div><div style="font-size:11px;color:'+(N?'#F3E3BF':'#CDD4E6')+';margin-top:4px">with watch areas</div></div>' +
     '</div></div>';
   var footer = '<span class="eng-rule-h" style="margin:20px 0 10px;width:28px"></span><div style="font-size:11px;color:var(--nd-fg-secondary)">Behavior signals powered by BrightHire · interviewers with '+RULES.BH_MIN+'+ recorded interviews · directional, not a performance judgment.</div>';
   if (N === 0) {
@@ -4479,7 +4507,7 @@ function coachingSignalsSection(dept, data) {
       '<div style="font-size:24px;line-height:1.15;letter-spacing:-.02em;color:#F4EEF6">'+th.name+'</div>' +
       '<div style="font-size:13px;line-height:1.55;color:#EADFE6;margin-top:10px;min-height:40px">'+((cr.cards[t.id]||{}).text||th.meaning)+'</div>' +
       '<span class="eng-rule-h" style="margin:16px 0 14px;background:linear-gradient(90deg,rgba('+st.raw+',.45),transparent)"></span>' +
-      '<div style="font-size:10px;font-weight:620;letter-spacing:.22em;text-transform:uppercase;color:var(--nd-fg-secondary);margin-bottom:10px">Below bar</div>' + ev +
+      '<div style="font-size:10px;font-weight:620;letter-spacing:.22em;text-transform:uppercase;color:var(--nd-fg-secondary);margin-bottom:10px">Watch areas</div>' + ev +
     '</div>';
     return '<div class="eng-pane-wrap iv-behavior-wrap" data-tilt style="position:relative;z-index:2">'+obj+'</div>';
   }).join('');
@@ -4505,7 +4533,7 @@ function coachingSignalsSection(dept, data) {
   var implication = cr.opportunity;
   var aiRead = '<div class="eng-pane eng-coach-ai" data-tilt style="margin:'+(conv?'4px':'28px')+' -44px 0;padding:0"><div class="eng-ai-innerpanel">' +
     '<div style="display:grid;grid-template-columns:'+(implication?'minmax(0,1.35fr) .5px minmax(0,1fr)':'minmax(0,1fr)')+';gap:32px;align-items:start">' +
-      '<div><div style="display:flex;align-items:center;gap:9px"><span class="eng-ai-diamond"></span><span style="font-size:10px;font-weight:620;letter-spacing:.22em;text-transform:uppercase;color:#E4DAFF">AI read</span></div>' +
+      '<div><div style="display:flex;align-items:center;gap:9px"><span class="eng-ai-diamond"></span><span style="font-size:10px;font-weight:620;letter-spacing:.22em;text-transform:uppercase;color:#E4DAFF">AI Insights</span></div>' +
         '<div style="font-size:24px;line-height:1.25;letter-spacing:-.018em;margin-top:14px;color:#F3EEFF;text-wrap:pretty">'+headline+'</div>' +
         '<div style="font-size:14px;line-height:1.6;color:#E6E0FA;margin-top:12px">'+support+'</div></div>' +
       (implication ? '<span class="eng-rule-v" style="background:linear-gradient(180deg,transparent,rgba(220,205,255,.4),transparent)"></span>' +
@@ -4520,7 +4548,7 @@ function coachingSignalsSection(dept, data) {
   });
   var reachOf = function(id){ return ct.people.filter(function(p){return p.th[id];}).length; };
   var ivcJSON = esc(JSON.stringify({N:N, reach:{conv:reachOf('conv'),struct:reachOf('struct'),fb:reachOf('fb')}, people:ivcPeople}));
-  var drill = '<div class="eng-coll" style="margin:28px -14px 0"><button class="eng-coll-btn" onclick="engColl(this)" style="padding:14px 18px"><span class="eng-coll-arrow">›</span><span class="eng-head-note" style="color:var(--nd-fg-secondary);letter-spacing:.2em">People behind the signal</span><span class="eng-coll-meta"><b style="color:#FFD6DE;font-weight:620">'+N+'</b> interviewer'+(N!==1?'s':'')+' need'+(N===1?'s':'')+' a closer look</span></button>' +
+  var drill = '<div class="eng-coll" style="margin:28px -14px 0"><button class="eng-coll-btn" onclick="engColl(this)" style="padding:14px 18px"><span class="eng-coll-arrow">›</span><span class="eng-head-note" style="color:var(--nd-fg-secondary);letter-spacing:.2em">People behind the signal</span><span class="eng-coll-meta"><b style="color:#FCEBBA;font-weight:620">'+N+'</b> interviewer'+(N!==1?'s':'')+' with watch areas</span></button>' +
     '<div class="eng-coll-body"><div class="eng-coll-clip"><div class="eng-coll-inner"><div class="ivc-mount" data-ivc="'+ivcJSON+'"></div></div></div></div></div>';
   var body = head + '<div class="eng-sub-eyebrow" style="margin:34px 0 0;display:flex;align-items:center;gap:12px">Behavior patterns <span class="eng-rule-h" style="flex:1"></span></div>' + objGrid + conv + aiRead + drill + footer;
   return engSection(cfg, body);
@@ -4596,7 +4624,7 @@ function renderEngagement(data) {
   const totalScored = bh.filter(r => (r.count || 0) >= 5).length;
   const flagRuleText = isCustomBar
     ? 'Interviewers whose overall BrightHire score fell below 65, regardless of interview volume. Weakest signals shown — hover any signal to see what it measures.'
-    : 'Interviewers with 5+ interviews whose overall BrightHire score fell below 80 and who were flagged on three or more quality signals. Weakest signals shown — hover any signal to see what it measures.';
+    : 'Interviewers with 5+ interviews whose overall BrightHire score fell below 80 with three or more signals under the bar. Weakest signals shown — hover any signal to see what it measures.';
 
   const auto = engagementInsights(currentDept, data);
 
@@ -4623,10 +4651,6 @@ function renderEngagement(data) {
     } else {
       headline += '<div><div class="eng-big" style="font-size:56px;color:#CDD4E6">'+fmt(scv.submitted)+'</div><div class="eng-cap">scorecards submitted · per-person timing not available</div></div>';
     }
-    if (notSubmitted) {
-      headline += '<span class="eng-rule-v" style="height:70px;margin-bottom:6px"></span>' +
-        '<div style="max-width:300px;align-self:center"><div style="font-size:12.5px;line-height:1.5;color:var(--nd-fg-secondary)"><b style="color:#FCEBBA;font-weight:620">'+notSubmitted+'</b> scorecard'+(notSubmitted!==1?'s are':' is')+' still outstanding' + (notSubPeople ? ' across <b style="color:#FCEBBA;font-weight:620">'+notSubPeople+'</b> named interviewer'+(notSubPeople!==1?'s':'') : '') + (scv.namedDueCount < notSubmitted ? ' (' + (notSubmitted - scv.namedDueCount) + ' not attributed to a person in the export)' : '') + '.</div></div>';
-    }
     if (withSub.length && !timedOk) headline += '<div style="flex-basis:100%;font-size:11.5px;color:var(--nd-fg-secondary)">Small sample — timing is available for only '+withSub.length+' interviewer'+(withSub.length!==1?'s':'')+'.</div>';
     headline += '</div>';
     var left = '';
@@ -4647,12 +4671,17 @@ function renderEngagement(data) {
     var right='';
     if (notSubmitted>0) {
       var chips = scv.namedDue.map(function(p){return '<span class="eng-due-chip">'+p.name+(p.still_due>1?' · '+p.still_due:'')+'</span>';}).join('');
-      right = '<div class="eng-pane p-amber eng-sc-pane" data-tilt><div class="eng-pane-edge"></div>' +
-        '<div style="font-size:44px;line-height:1;font-weight:400;letter-spacing:-.05em;color:#FCEBBA;text-shadow:0 0 30px rgba(246,191,86,.45)">'+notSubmitted+'</div>' +
-        '<div class="eng-cap" style="color:#F3E3BF">scorecards still unsubmitted</div>' +
-        '<span class="eng-rule-h" style="margin:14px 0;background:linear-gradient(90deg,rgba(255,226,170,.5),transparent)"></span>' +
-        (chips ? '<div class="eng-due-chips">'+chips+'</div>' : '<div class="eng-cap">Not attributed to individual interviewers in the export.</div>') +
-        '</div>';
+      var unattrib = scv.namedDueCount < notSubmitted ? notSubmitted - scv.namedDueCount : 0;
+      right = '<div class="eng-pane p-amber eng-sc-pane eng-due-pane" data-tilt><div class="eng-pane-edge"></div>' +
+        '<button type="button" class="eng-due-tog" aria-expanded="false" onclick="var p=this.closest(\'.eng-due-pane\');p.classList.toggle(\'open\');this.setAttribute(\'aria-expanded\',p.classList.contains(\'open\'))">' +
+          '<span><span style="display:block;font-size:44px;line-height:1;font-weight:400;letter-spacing:-.05em;color:#FCEBBA;text-shadow:0 0 30px rgba(246,191,86,.45)">'+notSubmitted+'</span>' +
+          '<span class="eng-cap" style="display:block;color:#F3E3BF">scorecards still unsubmitted</span></span>' +
+          '<span class="eng-due-arrow">›</span></button>' +
+        '<div class="eng-due-body"><div>' +
+          '<span class="eng-rule-h" style="margin:14px 0;background:linear-gradient(90deg,rgba(255,226,170,.5),transparent)"></span>' +
+          (chips ? '<div class="eng-due-chips">'+chips+'</div>' : '<div class="eng-cap">Not attributed to individual interviewers in the export.</div>') +
+          (chips && unattrib ? '<div class="eng-cap" style="margin-top:10px">'+unattrib+' not attributed to a person in the export.</div>' : '') +
+        '</div></div></div>';
     }
     html += engSection(scCfg, headline + '<div class="eng-sc-grid'+(right?' has-pane':'')+'"><div>'+left+'</div>' + (right?'<div>'+right+'</div>':'') + '</div>');
   }
@@ -4676,7 +4705,7 @@ function renderEngagement(data) {
     var cards = auto.items.slice(0,4).map(function(s2,i){
       var c = tagColors[s2.tag]||'#C9B6FF';
       return '<div class="eng-ai-card'+(i%2===1?' eng-ai-offset':'')+'" data-tilt>' +
-        '<div class="eng-ai-tag"><span style="color:'+c+';font-weight:620">0'+(i+1)+'</span> \u00b7 '+s2.tag+'</div>' +
+        '<div class="eng-ai-tag"><span style="color:'+c+';font-weight:620">'+s2.tag+'</span></div>' +
         '<div class="eng-ai-body"><strong>'+s2.title+'</strong> — '+s2.body+'</div>' +
       '</div>';
     }).join('');
@@ -4777,77 +4806,58 @@ function renderMetrics(data) {
   // reference ≈ 30% of scheduling activity. No invented benchmarks.
   const DECLINE_THRESHOLD = 15;
 
-  // --- Decline-side insight ---
+  // --- Decline-side insight --- (a surfacing read, not a call to action; small panels are read as small)
   const declineInsight = (function(){
     if (dTotal === 0 && coordFac === 0) return null;
-    if (dTotal === 0) return {state:'HEALTHY', body:'No interviewer declines were recorded this period across '+fmt(coordFac)+' scheduled interviews.', action:'No intervention suggested — this is a clean, reliable quarter.'};
-    var rate = dRateDisp;
-    var late = coordLate||0, vlate = coordVeryLate||0;
-    // concentration: top decliner's share of all declines
+    var N = coordFac, small = N < 40;
+    var words = ['No','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten'];
+    var W = function(n){ return n < words.length ? words[n] : String(n); };
+    if (dTotal === 0) return {state:'HEALTHY', body:'No declines across '+fmt(N)+' interviews. Every interview was kept — a clean, reliable quarter.', action:''};
+    var rate = dRateDisp, late = coordLate||0, vlate = coordVeryLate||0, rateHealthy = rate < DECLINE_THRESHOLD;
     var topDecliner = dDecliners.slice().sort(function(a,b){return (b.declines||0)-(a.declines||0);})[0];
-    var topShare = (topDecliner && dTotal)? Math.round((topDecliner.declines||0)/dTotal*100) : 0;
-    var repeatCount = repeatDecliners.length, repeatSharePct = repeatShare;
-    var rateHealthy = rate < DECLINE_THRESHOLD;
-    var timingRisk = (vlate>0) || (dTotal>0 && Math.round(late/dTotal*100) >= 25);
-    var hasFreq = dDecliners.some(function(i){var t=(i.completed||0)+(i.declines||0);return t>0 && Math.round(i.declines/t*100)>=35;});
-
-    // ACTIONABLE: healthy-ish volume but a clear, controllable timing / repeat concentration
-    if (timingRisk && (late>0 || vlate>0)) {
-      var vol = rateHealthy
-        ? 'Overall decline volume is healthy; timing is the more meaningful risk. The '+rate+'% decline rate stays below the '+DECLINE_THRESHOLD+'% attention threshold'
-        : 'The '+rate+'% decline rate is above the '+DECLINE_THRESHOLD+'% attention threshold, and timing compounds it';
-      var timing = ', but '+late+' declines landed within 24 hours'+(vlate>0?' and '+vlate+' within 4 hours':'')+' — the short-notice drops candidates feel most.';
-      var act;
-      if (hasFreq) act = 'Focus coaching on the repeat late decliners surfaced above rather than the whole panel — the concentration is narrow.';
-      else if (vlate>0) act = 'Worth a light touch with the few interviewers behind the same-day drops: reinforce honoring committed slots, or giving maximum notice.';
-      else act = 'Monitor the late-decline group; a single reminder about committed-slot etiquette would likely cover it.';
-      return {state:'ACTIONABLE', body:vol+timing, action:act};
+    var topShare = (topDecliner && dTotal) ? Math.round((topDecliner.declines||0)/dTotal*100) : 0;
+    var concentrated = repeatDecliners.length > 0 || topShare >= 25;
+    var count = W(dTotal)+' decline'+(dTotal!==1?'s':'')+' across '+fmt(N)+' interviews';
+    // A real short-notice pattern: enough volume and more than a couple of late drops
+    if (late >= 3 && !small) {
+      return {state:'ACTIONABLE', body:'The '+rate+'% decline rate '+(rateHealthy?'stays under':'is above')+' the '+DECLINE_THRESHOLD+'% threshold, '+(rateHealthy?'but '+late+' declines landed':'with '+late+' declines landing')+' within 24 hours'+(vlate?' and '+vlate+' within 4 hours':'')+' — the short-notice drops candidates feel most. '+
+        (concentrated ? 'They trace to a few repeat decliners rather than the whole panel.' : 'They’re spread across several interviewers rather than concentrated in a few.'), action:''};
     }
-    // WATCH: rate at/over threshold but timing not acute
-    if (!rateHealthy) {
-      return {state:'WATCH', body:'The '+rate+'% decline rate sits at or above the '+DECLINE_THRESHOLD+'% attention threshold, though short-notice timing isn\u2019t the driver this period.'+(topShare>=25?' A single interviewer accounts for ~'+topShare+'% of declines.':''),
-        action: topShare>=25 ? 'Worth monitoring — the concentration suggests a targeted conversation rather than a broad process change.' : 'Worth monitoring; no broad intervention suggested yet.'};
+    if (!rateHealthy && !small) {
+      return {state:'WATCH', body:'The '+rate+'% decline rate sits at or above the '+DECLINE_THRESHOLD+'% threshold, though short-notice timing isn’t the driver this period.'+(topShare>=25?' A single interviewer accounts for about '+topShare+'% of declines.':''), action:''};
     }
-    // HEALTHY / STABLE: rate below threshold, timing fine
-    if (dDecliners.length <= 2 || rate <= 5) {
-      return {state:'HEALTHY', body:'Decline behavior is quiet — a '+rate+'% rate, well under the '+DECLINE_THRESHOLD+'% threshold, with no short-notice pattern.', action:'No intervention suggested.'};
+    // One-off short-notice drops
+    if (late || vlate) {
+      var when = vlate ? 'inside 4 hours' : 'at short notice';
+      var lead = dTotal === 1 ? count+', '+when+'.' : count+'; '+(late===1?'one':W(late).toLowerCase())+' landed '+when+'.';
+      var tail = N < 10 ? ' A single instance in a small panel, not a pattern.'
+        : dTotal === 1 ? ' A one-off rather than a pattern — the panel was reliable this quarter.'
+        : ' A single short-notice drop rather than a pattern — reliability is solid overall.';
+      if (late > 1) tail = ' A handful of short-notice drops rather than a pattern — reliability is solid overall.';
+      return {state:'HEALTHY', body:lead+tail, action:''};
     }
-    return {state:'STABLE', body:'Decline volume is within range at '+rate+'% (threshold '+DECLINE_THRESHOLD+'%), with declines spread across the panel rather than concentrated or short-notice.',
-      action: (hasFreq? 'One possible opportunity: the few \u226535%-rate interviewers above, if their volume grows.' : 'Nothing requires action — steady this quarter.')};
+    // Healthy, nothing at short notice
+    if (dTotal === 1) return {state:'HEALTHY', body:count+', none at short notice'+(N >= 50 && rate <= 2 ? ' — among the most reliable panels in the company.' : '. The panel showed up for nearly every slot — a reliable quarter.'), action:''};
+    if (rate <= 5 || small) return {state:'HEALTHY', body:count+' ('+rate+'%), none at short notice — a reliable quarter.', action:''};
+    return {state:'STABLE', body:'Declines stayed within range at '+rate+'%, spread across the panel rather than concentrated, and none at short notice.', action:''};
   })();
 
   // --- Coordination-side insight ---
   const coordInsight = (function(){
     if (coordFac === 0) return null;
-    var chg = chgCount||0, rate = chgRate||0;
-    if (chg === 0) return {state:'HEALTHY', body:'A clean scheduling period — no interview changes logged across '+fmt(coordFac)+' interviews.', action:'No intervention suggested.'};
-    var intvPctLocal = rscIntv||0, candPct = rscCand||0;
-    var hasDriverData = (rscIntv !== null);
-    var loadState = rate >= 45 ? 'high' : (rate >= 30 ? 'moderate-high' : 'moderate');
-    // Driver nuance: if interviewer-initiated clearly dominates, that's the controllable lever
-    var driverLine, act, state;
-    if (!hasDriverData) {
-      state = rate>=45 ? 'WATCH' : 'STABLE';
-      driverLine = '. Too few attributed reschedules (' + cdv.attrib + ') to say who drove them.';
-      act = rate>=45 ? 'Worth monitoring the overall change load; driver detail would clarify where it originates.' : 'No intervention suggested; the load is manageable.';
-    } else if (intvPctLocal >= 60) {
-      state = rate>=45 ? 'ACTIONABLE' : 'WATCH';
-      driverLine = ' and interviewers initiated '+intvPctLocal+'% of reschedules — the controllable share.';
-      act = rate>=45 ? 'The lever is interviewer availability at scheduling time; worth checking whether a few calendars drive most of it.' : 'Worth monitoring; if it climbs, interviewer calendar hygiene is the place to look.';
-    } else if (intvPctLocal >= 45) {
-      state = rate>=45 ? 'WATCH' : 'STABLE';
-      driverLine = ', split roughly evenly between interviewer- and candidate-initiated ('+intvPctLocal+'% / '+candPct+'%).';
-      act = rate>=45 ? 'Worth monitoring — no single driver dominates, so broad process change isn\u2019t warranted yet.' : 'No broad intervention suggested; the split is balanced and the load is manageable.';
-    } else {
-      state = 'STABLE';
-      driverLine = ', and most reschedules were candidate-initiated ('+candPct+'%) — largely outside the team\u2019s control.';
-      act = 'No intervention suggested; candidate-driven change isn\u2019t a coaching signal.';
-    }
-    var lead = loadState==='high' ? 'Change load is on the heavier side this period'
-      : loadState==='moderate-high' ? 'Change load was moderate-to-heavy'
-      : 'Change load was moderate';
-    var body = lead+' — '+fmt(chg)+' changes, '+rate+'% of all scheduling activity'+driverLine;
-    return {state:state, body:body, action:act};
+    var chg = chgCount||0, rate = Math.round((chgRate||0)*10)/10, N = coordFac;
+    if (chg === 0) return {state:'HEALTHY', body:'No interview changes across '+fmt(N)+' interviews — a perfectly smooth scheduling quarter.', action:''};
+    var cc = chg+' change'+(chg!==1?'s':'');
+    if (chg <= 3 || N < 20)
+      return {state:'HEALTHY', body:'Just '+cc+' across '+fmt(N)+' interviews'+(rate >= 30 ? ' — at this volume, a couple of moves shift the rate a lot, which is normal for a small panel.' : ' — scheduling ran smoothly.'), action:''};
+    var lead = rate < 15 ? 'A light scheduling quarter: ' : rate < 30 ? 'A typical scheduling quarter: ' : rate < 45 ? 'Scheduling changes ran on the heavier side: ' : 'Scheduling changes were heavy this period: ';
+    var body = lead+fmt(chg)+' changes across '+fmt(N)+' interviews ('+rate+'% of scheduling activity).';
+    var drivers = rscIntv !== null && (cdv.attrib||0) >= 10;
+    if (drivers && rscIntv >= 60) body += ' Interviewers drove most reschedules ('+rscIntv+'%), so calendar availability is where most of the movement comes from.';
+    else if (drivers && rscIntv >= 45) body += ' Changes were split evenly between interviewers and candidates ('+rscIntv+'% / '+rscCand+'%)'+(rate < 30 ? ', within a normal range for a team this size.' : '.');
+    else if (drivers) body += ' Most reschedules were candidate-initiated ('+rscCand+'%).';
+    else if (rate < 30) body += ' Some movement is expected in any interview calendar.';
+    return {state: rate >= 45 ? 'WATCH' : 'STABLE', body:body, action:''};
   })();
 
   const aiReadPane = function(ins, variant){
@@ -4955,8 +4965,11 @@ function renderMetrics(data) {
         '<span class="obs-vrule" style="height:70px;align-self:center"></span>' +
         '<div class="obs-embed"><div class="obs-mid">'+dDecliners.length+'<span class="obs-of"> of '+activeCount+'</span></div><div class="obs-embed-cap">interviewers declined at least once · '+declinerShare+'%</div></div>' +
       '</div>' +
-      (hasWatch? '<div class="obs-sublabel">Watch areas <span class="obs-sublabel-hint">select to bring forward</span><span class="obs-sublabel-rule"></span></div><div class="obs-sig-grid">'+watchCards+'</div>'+watchDrawers : '') +
-      whyChip +
+      // Quiet departments: the decline tiles fold into a collapsed bar so a single decline doesn't take over the page
+      (hasWatch && declineInsight && declineInsight.state === 'HEALTHY'
+        ? '<div class="eng-coll obs-quiet-detail"><button class="eng-coll-btn" onclick="engColl(this)"><span class="eng-coll-arrow">›</span><span class="eng-coll-title">Decline detail</span><span class="eng-coll-meta">timing and who declined</span></button>' +
+          '<div class="eng-coll-body"><div class="eng-coll-clip"><div class="eng-coll-inner"><div class="obs-sig-grid">'+watchCards+'</div>'+watchDrawers+whyChip+'</div></div></div></div>'
+        : (hasWatch? '<div class="obs-sublabel">Watch areas <span class="obs-sublabel-hint">select to bring forward</span><span class="obs-sublabel-rule"></span></div><div class="obs-sig-grid">'+watchCards+'</div>'+watchDrawers : '') + whyChip) +
       aiReadPane(aiDecline,'ai-decline') +
     '</section>';
 
@@ -5075,10 +5088,17 @@ function renderMetrics(data) {
       '<div class="obs-colguide"></div>' +
       '<div class="obs-pointer-light"></div>' +
       '<div class="obs-content">' +
-        '<div class="obs-cols">' +
-          '<div class="obs-col obs-col-left">' + declinePlane + '</div>' +
-          '<div class="obs-col">' + coordPlane + contribPlane + '</div>' +
-        '</div>' +
+        // When declines are quiet (no pattern worth leading with), the page leads with the people keeping
+        // interviewing healthy; coordination and declines stack on the right. Busy departments keep the decline lead.
+        (contribPlane && declineInsight && declineInsight.state === 'HEALTHY'
+          ? '<div class="obs-cols lead-contrib">' +
+              '<div class="obs-col obs-col-left">' + contribPlane + '</div>' +
+              '<div class="obs-col">' + coordPlane + declinePlane + '</div>' +
+            '</div>'
+          : '<div class="obs-cols">' +
+              '<div class="obs-col obs-col-left">' + declinePlane + '</div>' +
+              '<div class="obs-col">' + coordPlane + contribPlane + '</div>' +
+            '</div>') +
         '<div class="obs-ts">Generated ' + D.meta.generated_date + ' · Source: ModernLoop + BrightHire + Greenhouse</div>' +
       '</div>' +
     '</div>';
