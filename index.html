@@ -2098,6 +2098,20 @@ body{background:linear-gradient(180deg,#e8ecf3 0%,#eef1f5 100%)!important;backgr
 .obs-quiet-detail .eng-coll-btn{padding:13px 16px;width:100%}
 /* Contribution spotlight card sits inside its box instead of breaking out past the edge */
 .rs-spot-wrap{margin:14px 0 16px!important}
+
+/* People behind the signal: an obvious, inviting drawer */
+.eng-pbs{margin:28px 0 0;border-radius:14px;background:linear-gradient(135deg,rgba(203,191,255,.14),rgba(168,231,243,.06));box-shadow:inset 0 0 0 1px rgba(203,191,255,.28),inset 0 1px 0 rgba(255,255,255,.14),0 14px 30px -18px rgba(8,6,32,.8);transition:box-shadow .3s,background .3s}
+.eng-pbs:hover{background:linear-gradient(135deg,rgba(203,191,255,.22),rgba(168,231,243,.10));box-shadow:inset 0 0 0 1px rgba(203,191,255,.5),inset 0 1px 0 rgba(255,255,255,.2),0 0 26px -6px rgba(203,191,255,.45),0 14px 30px -18px rgba(8,6,32,.8)}
+.eng-pbs>.eng-coll-btn{display:flex;align-items:center;gap:14px;width:100%;padding:15px 18px;cursor:pointer}
+.eng-pbs-ic{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:16px;color:#16123a;background:linear-gradient(180deg,#efeaff,#cbbfff);box-shadow:0 0 14px -2px rgba(203,191,255,.7);transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.eng-pbs.open .eng-pbs-ic{transform:rotate(90deg)}
+.eng-pbs-t{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left}
+.eng-pbs-k{font-size:11px;font-weight:620;letter-spacing:.2em;text-transform:uppercase;color:#E4DAFF}
+.eng-pbs-s{font-size:13px;color:#d9def0}
+.eng-pbs-s b{color:#FCEBBA;font-weight:620}
+.eng-pbs-cta{flex:none;font-size:12px;font-weight:600;color:#E4DAFF;padding:6px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(203,191,255,.4);background:rgba(255,255,255,.05);transition:background .3s}
+.eng-pbs:hover .eng-pbs-cta{background:rgba(203,191,255,.2)}
+.eng-pbs.open .eng-pbs-cta{opacity:.6}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
@@ -2112,10 +2126,10 @@ body{background:linear-gradient(180deg,#e8ecf3 0%,#eef1f5 100%)!important;backgr
     <div class="logo-dot"></div>
     <div class="iv-wm" tabindex="0" aria-describedby="iv-wmcard">
       <div class="report-title" id="hdr-title"><span class="rt-brand">InnerView</span> <span class="rt-desc">Talent Operations Intelligence</span></div>
-      <div class="iv-metarow"><span class="report-meta" id="hdr-meta"></span><span class="iv-tag">· <b>Agentic analytics</b></span></div>
+      <div class="iv-metarow"><span class="report-meta" id="hdr-meta"></span><span class="iv-tag">· <b>Insight-led analytics</b></span></div>
       <div class="iv-wmcard" id="iv-wmcard" role="tooltip">
-        <div class="k">Agentic analytics</div>
-        <div class="t">An agentic analytics experience for talent operations.</div>
+        <div class="k">Insight-led analytics</div>
+        <div class="t">An insight-led experience for talent operations.</div>
         <div class="b">InnerView consolidates interview data from ModernLoop, Greenhouse and BrightHire into one connected experience, surfacing patterns, behaviors and insights.</div>
         <div class="net"><span>ModernLoop</span><span>Greenhouse</span><span>BrightHire</span></div>
       </div>
@@ -2710,6 +2724,8 @@ function ivpModel(name) {
   const sig = bh ? Object.keys(BH_SIGNAL_THEME).filter(k => bh[k] != null).map(k => ({ k, l: BH_SIGNAL_THEME[k].label, th: BH_SIGNAL_THEME[k].theme, v: bh[k] })) : [];
   const low = sig.filter(s => s.v < BAR);
   const rank = o.rank.get(name), top = p.completed > 0 && rank <= Math.max(5, Math.ceil(o.activeN * 0.1));
+  const ppl = isPeopleTeam(name);
+  if (ppl) { p.declines = 0; p.late = 0; p.vlate = 0; }
   const share = IV.assignedShare(p), dc = ivDeclineContext(o, p), mods = ivModules(name) || [], st = ivTrain(name);
   const tr = mods.filter(m => m[2] === 'Trained'), ip = mods.filter(m => m[2] !== 'Trained');
   const F1 = ivEsc(ivFirst(name)), assigned = p.completed + p.declines, late = p.late || 0, vlate = p.vlate || 0;
@@ -2722,11 +2738,11 @@ function ivpModel(name) {
   // 2. Follow-through: needs scorecard evidence; BrightHire feedback flags only support it
   const fbT = scored && bh.fb_time != null && bh.fb_time < BAR, fbR = scored && bh.fb_rate != null && bh.fb_rate < BAR;
   const slow = p.scHrs != null && p.scHrs >= RULES.SLA_HRS, due = p.sc.due || 0;
-  const ft = (slow && (due || fbT || fbR)) || (p.scHrs != null && p.scHrs >= RULES.SLOW_HRS) || due >= 3;
+  const ft = !ppl && ((slow && (due || fbT || fbR)) || (p.scHrs != null && p.scHrs >= RULES.SLOW_HRS) || due >= 3);
   // 3. Conduct
-  const room = scored ? low.filter(s => s.th === 'conv' || s.th === 'struct') : [];
+  const room = scored && !ppl ? low.filter(s => s.th === 'conv' || s.th === 'struct') : [];
   const coach = scored && bhFlaggedList(p.bhDept, [bh]).length > 0;
-  const eeoc = scored && bh.eeoc != null && bh.eeoc < BAR;
+  const eeoc = !ppl && scored && bh.eeoc != null && bh.eeoc < BAR;
   const F = [];
   if (eeoc) F.push({ tone: 'r', ev: ['bh'], t: 'EEOC compliance is below the bar', s: 'This is a compliance conversation rather than a coaching one, and it comes first.' });
   if (rel) {
@@ -3051,11 +3067,32 @@ function applyCurrentLevels() {
     }));
   });
 }
+// People team (TA / recruiting) are the readers of this report, not its subject. Nothing that reads as criticism of
+// a People-team member is shown: their names come off decline, scorecard and coaching lists, and their profiles carry
+// no watch findings. Department totals are unchanged; a removed name is counted as an unnamed single.
+const PEOPLE_TEAM = new Set((typeof HR_ROSTER !== 'undefined' ? HR_ROSTER : []).filter(r => r[1] === 'People').map(r => String(r[0]).replace(/‌/g, '')));
+const isPeopleTeam = n => PEOPLE_TEAM.has(String(n || '').replace(/‌/g, ''));
+function applyPeopleTeamPrivacy() {
+  if (typeof DECLINE_LEADTIME !== 'undefined') Object.values(DECLINE_LEADTIME).forEach(lt => ['late', 'vlate'].forEach(k => {
+    const b = lt[k]; if (!b || !b.people) return;
+    b.people = b.people.filter(([nm, c]) => { if (!isPeopleTeam(nm)) return true; b.ones = (b.ones || 0) + c; return false; });
+  }));
+  (D.departments || []).forEach(dn => {
+    const d = sel(dn);
+    (d.all_interviewers || []).forEach(r => { if (isPeopleTeam(r.name)) r.declines = 0; });
+    const sc = d.scorecards;
+    if (sc) {
+      ['slowest_submitters', 'flagged_people'].forEach(k => { if (Array.isArray(sc[k])) sc[k] = sc[k].filter(p => !isPeopleTeam(p.name)); });
+      (sc.all_people || []).forEach(p => { if (isPeopleTeam(p.name)) p.still_due = 0; });
+    }
+  });
+}
 function init() {
   if (!D) { document.body.innerHTML = '<p style="padding:40px;color:red">No data found. Run build.py first.</p>'; return; }
   applyCurrentLevels();
   applyGreenhouseOpenings();
   applyEligibility();
+  applyPeopleTeamPrivacy();
   // Title is set statically in the header markup (InnerView + descriptor).
   document.getElementById('hdr-meta').textContent = [D.meta.quarter, D.meta.period].filter(Boolean).join(' · ');
   document.getElementById('footer').textContent = 'Generated ' + D.meta.generated_date + ' · Source: ModernLoop + BrightHire + Greenhouse';
@@ -3694,6 +3731,7 @@ function scoreChip(val) {
 }
 const BH_QSIG = ['talk_ratio','monologue','eeoc','q_opp','agenda','fb_time','fb_rate'];   // on-time start is not a coaching signal
 function bhFlaggedList(dept, bhArr) {
+  bhArr = (bhArr || []).filter(r => !(typeof isPeopleTeam === 'function' && isPeopleTeam(r.name)));
   if (dept === 'Product Design') {
     return (bhArr || []).filter(r => (r.overall ?? 100) < 65);
   }
@@ -4141,14 +4179,6 @@ function renderOverview(data) {
   body += engSection({ idx: '02', label: 'Interviewer engagement', tint: 't-aqua', color: '#8FE3D2', corners: ['tl'], action: detailsBtn('engagement') }, cardGrid(engCards, 4));
   body += engSection({ idx: '03', label: 'Interview metrics', tint: 't-lav', color: '#C7B8F5', corners: ['tl'], action: detailsBtn('metrics') }, cardGrid(metCards, 3));
 
-  // 04 · Quarterly context — editable inline (temporary, for live use)
-  const qPh = 'Click to add quarterly context — key hiring themes, org changes, or anything that adds colour to the numbers above.';
-  body += engSection({ idx: '04', label: 'Quarterly context', tint: 't-slate', color: '#CDD4E6', corners: ['tl'], note: 'edits are temporary · add to config.yaml to persist' },
-    '<div id="' + qNotesId + '" class="eng-recess sum-notes' + (qNotes ? '' : ' is-empty') + '" contenteditable="true" data-placeholder="' + qPh + '"' + (qNotes ? '' : ' data-empty="1"') +
-      ' onfocus="if(this.dataset.empty){this.textContent=\'\';delete this.dataset.empty;this.classList.remove(\'is-empty\')}"' +
-      ' onblur="if(!this.textContent.trim()){this.textContent=this.dataset.placeholder;this.dataset.empty=\'1\';this.classList.add(\'is-empty\')}">' +
-      (qNotes || qPh) + '</div>');
-
   // 05 · Roles this period
   body += engSection({ idx: '05', label: 'Roles this period', tint: 't-slate', color: '#B9C6F0', corners: ['tl'], note: 'Greenhouse openings · active ' + (D.meta.period || '') },
     (rolesHtml ? '<div class="eng-cap" style="margin:-6px 0 14px">Openings active at any point in ' + (D.meta.period || 'the reporting window') + '. Searches that began earlier show “Before Jul 1”; status is as of Sept 30.</div>' + rolesHtml : '') ||
@@ -4394,7 +4424,7 @@ function skillCoverageCard(data, skills) {
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><span style="width:6px;height:6px;border-radius:999px;background:#86E8B4;box-shadow:0 0 10px rgba(134,232,180,.9)"></span><span style="font-size:12px;font-weight:620;letter-spacing:.02em;color:#A8EFC8">Well covered (\u226580%)</span></div>' +
         '<div class="skc-covered" style="display:flex;flex-direction:column;gap:12px"></div>' +
       '</div>' +
-      '<div class="skc-gapwrap" data-tilt style="position:relative;z-index:3;margin:-18px -42px 0 0;transform:perspective(1200px) rotateX(calc(var(--ty,0)*-1.4deg)) rotateY(calc(var(--tx,0)*1.8deg));transition:transform .22s cubic-bezier(.2,0,0,1)">' +
+      '<div class="skc-gapwrap" data-tilt style="position:relative;z-index:3;margin:0;transform:perspective(1200px) rotateX(calc(var(--ty,0)*-1.4deg)) rotateY(calc(var(--tx,0)*1.8deg));transition:transform .22s cubic-bezier(.2,0,0,1)">' +
         '<div style="position:relative;border-radius:10px;padding:22px 24px;overflow:hidden;background:linear-gradient(160deg,rgba(255,225,200,.15),rgba(240,150,150,.05));-webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);border:.5px solid rgba(255,215,190,.4);box-shadow:inset 0 .5px 0 rgba(255,236,220,.7),0 0 46px -16px rgba(246,160,120,.5),0 34px 60px -24px rgba(2,3,14,.88)">' +
           '<div style="position:absolute;top:-80px;right:-60px;width:260px;height:220px;border-radius:999px;background:radial-gradient(circle,rgba(246,191,86,.28),transparent 68%);pointer-events:none"></div>' +
           '<div style="position:absolute;bottom:-80px;left:-60px;width:260px;height:220px;border-radius:999px;background:radial-gradient(circle,rgba(240,130,155,.24),transparent 68%);pointer-events:none"></div>' +
@@ -4548,7 +4578,7 @@ function coachingSignalsSection(dept, data) {
   });
   var reachOf = function(id){ return ct.people.filter(function(p){return p.th[id];}).length; };
   var ivcJSON = esc(JSON.stringify({N:N, reach:{conv:reachOf('conv'),struct:reachOf('struct'),fb:reachOf('fb')}, people:ivcPeople}));
-  var drill = '<div class="eng-coll" style="margin:28px -14px 0"><button class="eng-coll-btn" onclick="engColl(this)" style="padding:14px 18px"><span class="eng-coll-arrow">›</span><span class="eng-head-note" style="color:var(--nd-fg-secondary);letter-spacing:.2em">People behind the signal</span><span class="eng-coll-meta"><b style="color:#FCEBBA;font-weight:620">'+N+'</b> interviewer'+(N!==1?'s':'')+' with watch areas</span></button>' +
+  var drill = '<div class="eng-coll eng-pbs"><button class="eng-coll-btn" onclick="engColl(this)"><span class="eng-pbs-ic">›</span><span class="eng-pbs-t"><span class="eng-pbs-k">People behind the signal</span><span class="eng-pbs-s"><b>'+N+'</b> interviewer'+(N!==1?'s':'')+' with watch areas</span></span><span class="eng-pbs-cta">View people</span></button>' +
     '<div class="eng-coll-body"><div class="eng-coll-clip"><div class="eng-coll-inner"><div class="ivc-mount" data-ivc="'+ivcJSON+'"></div></div></div></div></div>';
   var body = head + '<div class="eng-sub-eyebrow" style="margin:34px 0 0;display:flex;align-items:center;gap:12px">Behavior patterns <span class="eng-rule-h" style="flex:1"></span></div>' + objGrid + conv + aiRead + drill + footer;
   return engSection(cfg, body);
